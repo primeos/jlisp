@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class IPv4Packet extends IPPacket {
 
-	private byte headerLength = 5;
+    private byte headerLength = 5;
     private byte    tos;
     private short   totalLength;
     private short   identification;
@@ -61,6 +61,36 @@ public class IPv4Packet extends IPPacket {
         this.destinationAddress = destinationAddress;
     }
 
+    public IPv4Packet(byte[] packet) {
+        this.headerLength = (byte) (packet[0] & 0x0F);
+        this.tos = packet[1];
+        this.totalLength = (packet[2] << 8) + packet[3];
+        this.identification = (packet[4] << 8) + packet[5];
+        short tmpOffset = (packet[6] << 8) + packet[7];
+        this.dfFlag = (tmpOffset & 0b0100000000000000) != 0;
+        this.nfFlag = (tmpOffset & 0b0010000000000000) != 0;
+        this.fragmentOffset = (short) (tmpOffset & 0x0FFF);
+        this.ttl = packet[8]
+        this.protocol = packet[9]
+        this.checksum = (packet[10] << 8) + packet[11];
+        this.sourceAddress =  (packet[12] << 24) + (packet[13] << 16) + (packet[14] << 8) + packet[15];
+        this.destinationAddress =  (packet[16] << 24) + (packet[17] << 16) + (packet[18] << 8) + packet[19];
+        for (int i = 20; i < this.headerLength*4; i++) {
+            packet[i];//TODO Option headers
+        }
+        switch(this.protocol){ //TODO Payload
+        case IPPayload.UDP:
+                payload = new UDPPacket(stream);
+                break;
+        case IPPayload.ICMP:
+                payload = new ICMPPacket(stream);
+                break;
+        default:
+                throw new IOException("Unexpected Protocol");
+        }
+
+    }
+
     private void checksum() {
         byte[] tmp = toByteArray();
         short sum = 0;
@@ -107,4 +137,14 @@ public class IPv4Packet extends IPPacket {
 
         return byteStream.toByteArray();
     }
+
+        public void getSrcIP();
+        public void getDstIP();
+
+        public void getTTL();
+        public void setTTL(int ttl);
+
+        public void getToS();
+        public void setToS(int tos);
+
 }
