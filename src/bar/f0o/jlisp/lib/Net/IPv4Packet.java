@@ -19,6 +19,7 @@ public class IPv4Packet extends IPPacket {
     private short checksum;
     private byte[]   sourceAddress = new byte[4];
     private byte[]   destinationAddress = new byte[4];
+    private byte[] optionHeaders;
     private IPPayload payload;
 
     @SuppressWarnings("unused")
@@ -64,30 +65,33 @@ public class IPv4Packet extends IPPacket {
     public IPv4Packet(byte[] packet) {
         this.headerLength = (byte) (packet[0] & 0x0F);
         this.tos = packet[1];
-        this.totalLength = (packet[2] << 8) + packet[3];
-        this.identification = (packet[4] << 8) + packet[5];
-        short tmpOffset = (packet[6] << 8) + packet[7];
+        this.totalLength = (short) ((packet[2] << 8) + packet[3]);
+        this.identification = (short) ((packet[4] << 8) + packet[5]);
+        short tmpOffset = (short) ((packet[6] << 8) + packet[7]);
         this.dfFlag = (tmpOffset & 0b0100000000000000) != 0;
         this.nfFlag = (tmpOffset & 0b0010000000000000) != 0;
         this.fragmentOffset = (short) (tmpOffset & 0x0FFF);
-        this.ttl = packet[8]
-        this.protocol = packet[9]
-        this.checksum = (packet[10] << 8) + packet[11];
-        this.sourceAddress =  (packet[12] << 24) + (packet[13] << 16) + (packet[14] << 8) + packet[15];
-        this.destinationAddress =  (packet[16] << 24) + (packet[17] << 16) + (packet[18] << 8) + packet[19];
+        this.ttl = packet[8];
+        this.protocol = packet[9];
+        this.checksum = (short) ((packet[10] << 8) + packet[11]);
+        this.sourceAddress[0] = packet[12];
+        this.sourceAddress[1] = packet[13];
+        this.sourceAddress[2] = packet[14];
+        this.sourceAddress[3] = packet[15];
+        this.destinationAddress[0] = packet[16];
+        this.destinationAddress[1] = packet[17];
+        this.destinationAddress[2] = packet[18];
+        this.destinationAddress[3] = packet[19];
+        this.optionHeaders = new byte[this.headerLength*4 - 20];
         for (int i = 20; i < this.headerLength*4; i++) {
-            packet[i];//TODO Option headers
+            this.optionHeaders[i-20] = packet[i];
         }
-        switch(this.protocol){ //TODO Payload
-        case IPPayload.UDP:
-                payload = new UDPPacket(stream);
-                break;
-        case IPPayload.ICMP:
-                payload = new ICMPPacket(stream);
-                break;
-        default:
-                throw new IOException("Unexpected Protocol");
+        
+        byte[] tmpPayload = new byte[packet.length - this.headerLength*4];
+        for (int i = this.headerLength*4 - 1; i < packet.length; i++) {
+            tmpPayload[i] = packet[i];
         }
+        this.payload = new GenericPayload(tmpPayload);
 
     }
 
@@ -138,13 +142,25 @@ public class IPv4Packet extends IPPacket {
         return byteStream.toByteArray();
     }
 
-        public void getSrcIP();
-        public void getDstIP();
+        public byte[] getSrcIP() {
+        	return this.sourceAddress;
+        }
+        public byte[] getDstIP() {
+        	return this.destinationAddress;
+        }
 
-        public void getTTL();
-        public void setTTL(int ttl);
+        public byte getTTL() {
+        	return this.ttl;
+        }
+        public void setTTL(byte ttl) {
+        	this.ttl = ttl;
+        }
 
-        public void getToS();
-        public void setToS(int tos);
+        public byte getToS() {
+        	return this.tos;
+        }
+        public void setToS(byte tos) {
+        	this.tos = tos;
+        }
 
 }

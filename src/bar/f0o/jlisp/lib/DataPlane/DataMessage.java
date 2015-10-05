@@ -80,15 +80,15 @@ public class DataMessage {
             this.lsBits = stream.readInt();
         }
         else {
-            this.instanceID = (stream.readShort() << 8) + (stream.readByte();
-            this.lsBits =  (stream.readByte();
+            this.instanceID = (stream.readShort() << 8) + (stream.readByte());
+            this.lsBits =  (stream.readByte());
         }
-        byte[] tmpPayload;
+        byte[] tmpPayload = new byte[1];
         stream.readFully(tmpPayload);
         this.payload = IPPacket.fromByteArray(tmpPayload);
     }
     public DataMessage(boolean nBit, boolean lBit, boolean eBit, boolean vBit, boolean iBit, int nonce, int lsBits, IPPacket payload) {
-        this(nBit, Bit, Bit, vBit, iBit, nonce, 0, lsBits), payload;
+        this(nBit, lBit, eBit, vBit, iBit, nonce, 0, lsBits,  payload);
     }
  
     public DataMessage(boolean nBit, boolean lBit, boolean eBit, boolean vBit, boolean iBit, int nonce, int instanceId, int lsBits, IPPacket payload) {
@@ -98,7 +98,7 @@ public class DataMessage {
         this.vBit = vBit;
         this.iBit = iBit;
         this.nonce = nonce;
-        this.instanceID = instanceID;
+        this.instanceID = instanceId;
         this.lsBits = lsBits;
         this.payload = payload;
     }
@@ -109,7 +109,7 @@ public class DataMessage {
         try {
             byte flagsTypeTmp = 0;
             if (this.nBit)
-                flagsTypeTmp |= 64);
+                flagsTypeTmp |= 64;
             if (this.lBit)
                 flagsTypeTmp |= 32;
             if (this.eBit)
@@ -126,7 +126,6 @@ public class DataMessage {
             } else
                 stream.writeInt(this.lsBits);
             stream.write(payload.toByteArray());
-            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -136,53 +135,38 @@ public class DataMessage {
 
     @Override
     public String toString() {
-        String ret = "DataMessage [nBit=" + nBit + ", lBit=" + lBit + ", eBit=" + eBit
-                     + ", nonce=" + nonce + ", recordCount=" + recordCount
-                     + ", reserved=" + reserved + ", records=";
+        String ret = "DataMessage [nBit=" + nBit + ", lBit=" + lBit + ", eBit=" + eBit + ", vBit=" + vBit + ", iBit=" + iBit
+                     + ", nonce=" + nonce + ", instanceID=" + instanceID
+                     + ", lsBits=" + lsBits + ", payload=" + payload;
         return ret;
     }
-
-    //Getter
-
-    public static byte getType() {
-        return type;
-    }
-
-    public boolean isnBit() {
-        return nBit;
-    }
-
-    public boolean islBit() {
-        return lBit;
-    }
-
-    public boolean iseBit() {
-        return eBit;
-    }
-
-    public long getNonce() {
-        return nonce;
-    }
-
-    public byte getRecordCount() {
-        return recordCount;
-    }
-
-    public short getReserved() {
-        return reserved;
-    }
-
-    public ArrayList<Record> getRecords() {
-        return records;
-    }
-
-    public byte getAdType() {
-        return adType;
-    }
-
-    public int getAdContent() {
-        return adContent;
-    }
+	public boolean isnBit() {
+		return this.nBit;
+	}
+	public boolean islBit() {
+		return this.lBit;
+	}
+	public boolean iseBit() {
+		return this.eBit;
+	}
+	public boolean isvBit() {
+		return this.vBit;
+	}
+	public boolean isiBit() {
+		return this.iBit;
+	}
+	public int getNonce() {
+		return this.nonce;
+	}
+	public int getLsBits() {
+		return this.lsBits;
+	}
+	public int getInstanceID() {
+		return this.instanceID;
+	}
+	public IPPacket getPayload() {
+		return this.payload;
+	}
 
 
 }
