@@ -1,19 +1,41 @@
+/******************************************************************************
+ * Copyright (c) 2015 by                                                      *
+ * Andreas Stockmayer <stockmay@f0o.bar> and                                  *
+ * Mark Schmidt <schmidtm@f0o.bar>                                            *
+ *                                                                            *
+ * This file (ControlMessage.java) is part of JLISP.                          *
+ *                                                                            *
+ * JLISP is free software: you can redistribute it and/or modify              *
+ * it under the terms of the GNU General Public License as published by       *
+ * the Free Software Foundation, either version 3 of the License, or          *
+ * (at your option) any later version.                                        *
+ *                                                                            *
+ * JLISP is distributed in the hope that it will be useful,                   *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *
+ * GNU General Public License for more details.                               *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with JLISP.  If not, see <http://www.gnu.org/licenses/>.             *
+ ******************************************************************************/
+
 package bar.f0o.jlisp.lib.Net;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Random;
 
 public class IPv4Packet extends IPPacket {
 
     private byte headerLength = 5;
-    private byte    tos;
+    private byte    tos = 0;
     private short   totalLength;
     private short   identification;
     private boolean dfFlag;
     private boolean nfFlag;
-    private short   fragmentOffset;
+    private short   fragmentOffset = 0;
     private byte ttl      = 16;
     private byte protocol = 17;
     private short checksum;
@@ -41,39 +63,31 @@ public class IPv4Packet extends IPPacket {
         this.checksum = stream.readShort();
         stream.read(sourceAddress);
         stream.read(destinationAddress);
-        for (int i = 5; i < this.headerLength; i++) {
-            stream.readInt();
+        optionHeaders = new byte[this.headerLength*4-20];
+        for (int i = 20; i < this.headerLength*4; i++) {
+            optionHeaders[i-20] = stream.readByte();
         }
-        switch(this.protocol){
-        case IPPayload.UDP:
-        	payload = new UDPPacket(stream);
-        	break;
-        case IPPayload.ICMP:
-        	payload = new ICMPPacket(stream);
-        	break;
-        default:
-        	throw new IOException("Unexpected Protocol");
-        }
+        this.payload = new GenericPayload(stream);
     }
 
     public IPv4Packet(byte[] sourceAddress, byte[] destinationAddress) {
-        this.totalLength = 33;
         this.sourceAddress = sourceAddress;
         this.destinationAddress = destinationAddress;
+        this.identification = (short) new Random().nextInt();
     }
 
     public IPv4Packet(byte[] packet) {
         this.headerLength = (byte) (packet[0] & 0x0F);
         this.tos = packet[1];
-        this.totalLength = (short) ((packet[2] << 8) + packet[3]);
-        this.identification = (short) ((packet[4] << 8) + packet[5]);
+        this.totalLength = (short) ((packet[2] << 8) + (packet[3]&0xFF));
+        this.identification = (short) (((packet[4]) << 8) + ((packet[5])&0xFF));
         short tmpOffset = (short) ((packet[6] << 8) + packet[7]);
         this.dfFlag = (tmpOffset & 0b0100000000000000) != 0;
         this.nfFlag = (tmpOffset & 0b0010000000000000) != 0;
         this.fragmentOffset = (short) (tmpOffset & 0x0FFF);
         this.ttl = packet[8];
         this.protocol = packet[9];
-        this.checksum = (short) ((packet[10] << 8) + packet[11]);
+        this.checksum = (short) (((packet[10]) << 8) + (packet[11]&0xFF));
         this.sourceAddress[0] = packet[12];
         this.sourceAddress[1] = packet[13];
         this.sourceAddress[2] = packet[14];
@@ -88,23 +102,31 @@ public class IPv4Packet extends IPPacket {
         }
         
         byte[] tmpPayload = new byte[packet.length - this.headerLength*4];
-        for (int i = this.headerLength*4 - 1; i < packet.length; i++) {
-            tmpPayload[i] = packet[i];
+        int j = 0;
+        for (int i = this.headerLength*4; i < packet.length; i++) {
+            tmpPayload[j] = packet[i];
+            j++;
         }
         this.payload = new GenericPayload(tmpPayload);
 
     }
 
     private void checksum() {
+    	this.checksum = 0;
         byte[] tmp = toByteArray();
-        short sum = 0;
-        for (int i = 0; i < tmp.length; i += 2) {
-            short tmpSum = (short) (tmp[i + 1] + (tmp[i] << 8));
-            tmpSum ^= 0xFFFF;
-            sum += tmpSum;
+        int i = 0;
+        long sum = 0;
+        int length = this.headerLength*4;
+        while (length > 0) {
+            sum += (tmp[i++]&0xff) << 8;
+            if ((--length)==0) break;
+            sum += (tmp[i++]&0xff);
+            --length;
         }
-        checksum = sum ^= 0xFFFF;
+        checksum = (short)((~((sum & 0xFFFF)+(sum >> 16)))&0xFFFF);
     }
+    
+   
 
     public void addPayload(IPPayload payload) {
     	this.protocol = payload.getProtocol();
@@ -112,6 +134,10 @@ public class IPv4Packet extends IPPacket {
         this.totalLength = (short) ((this.headerLength + payload.getLength()) * 4);
         System.out.println(totalLength + " "+ payload.getLength());
         this.checksum();
+    }
+    
+    public IPPayload getPayload(){
+    	return this.payload;
     }
 
     public byte[] toByteArray() {
@@ -133,6 +159,9 @@ public class IPv4Packet extends IPPacket {
             stream.writeShort(checksum);
             stream.write(sourceAddress);
             stream.write(destinationAddress);
+            for (int i = 20; i < this.headerLength*4; i++) {
+                stream.writeByte(optionHeaders[i-20]);
+            }
             stream.write(payload.toByteArray());
             
         } catch (IOException e) {
@@ -145,8 +174,14 @@ public class IPv4Packet extends IPPacket {
         public byte[] getSrcIP() {
         	return this.sourceAddress;
         }
+        public void setSrcIP(byte[] ip){
+        	this.sourceAddress = ip;
+        }
         public byte[] getDstIP() {
         	return this.destinationAddress;
+        }
+        public void setDstIP(byte[] ip){
+        	this.destinationAddress = ip;
         }
 
         public byte getTTL() {
@@ -162,5 +197,14 @@ public class IPv4Packet extends IPPacket {
         public void setToS(byte tos) {
         	this.tos = tos;
         }
+        
+        public short getChecksum(){
+        	return checksum;
+        }
+        public void updateChecksum(){
+        	this.checksum();
+        }
+        
+        
 
 }

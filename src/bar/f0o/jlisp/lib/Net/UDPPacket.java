@@ -1,3 +1,24 @@
+/******************************************************************************
+ * Copyright (c) 2015 by                                                      *
+ * Andreas Stockmayer <stockmay@f0o.bar> and                                  *
+ * Mark Schmidt <schmidtm@f0o.bar>                                            *
+ *                                                                            *
+ * This file (ControlMessage.java) is part of JLISP.                          *
+ *                                                                            *
+ * JLISP is free software: you can redistribute it and/or modify              *
+ * it under the terms of the GNU General Public License as published by       *
+ * the Free Software Foundation, either version 3 of the License, or          *
+ * (at your option) any later version.                                        *
+ *                                                                            *
+ * JLISP is distributed in the hope that it will be useful,                   *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of             *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *
+ * GNU General Public License for more details.                               *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with JLISP.  If not, see <http://www.gnu.org/licenses/>.             *
+ ******************************************************************************/
+
 package bar.f0o.jlisp.lib.Net;
 
 import java.io.ByteArrayOutputStream;
@@ -36,6 +57,15 @@ public class UDPPacket extends IPPayload {
 		stream.readFully(payload);
 	}
 
+	public UDPPacket(byte[] data){
+		this.srcPort = (short)((data[0]<<8)+(data[1]&0xFF));
+		this.dstPort = (short)((data[2]<<8)+(data[3]&0xFF));
+		this.length = (short)((data[4]<<8)+(data[5]&0xFF));
+		this.checksum = (short)((data[6]<<8)+(data[7]&0xFF));
+		this.payload = new byte[data.length-8];
+		System.arraycopy(data, 8, payload, 0, payload.length);
+	}
+	
 	@Override
 	public byte[] toByteArray() {
 		 ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -64,7 +94,7 @@ public class UDPPacket extends IPPayload {
 		return IPPayload.UDP;
 	}
 	
-	private void generateChecksumV4(byte[] src,byte[] dst){
+	public void generateChecksumV4(byte[] src,byte[] dst){
 		int sum = 0;
 		sum += (short) ((src[1] + (src[0] << 8)) ^ 0xFFFF); 
 		sum += (short) ((dst[1] + (dst[0] << 8)) ^ 0xFFFF); 
@@ -86,5 +116,10 @@ public class UDPPacket extends IPPayload {
 	
 	private void generateChecksumV6(byte[] src,byte[] dst){
 		
+	}
+
+
+	public short getChecksum() {
+		return this.checksum;
 	}
 }
