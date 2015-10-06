@@ -27,7 +27,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import bar.f0o.jlisp.lib.Net.IPPacket; 
+import bar.f0o.jlisp.lib.Net.IPPacket;
+import sun.misc.IOUtils;
+import sun.nio.ch.IOUtil; 
 
 /**
  * Dataplane Message
@@ -67,26 +69,28 @@ public class DataMessage {
     private int instanceID;
     private IPPacket payload;
 
-    public DataMessage(DataInputStream stream) throws IOException {
-        byte flags = stream.readByte();
-        this.nBit = (flags & 64) != 0;
+    
+    public DataMessage(byte[] data) {
+		byte flags = data[0];
+		this.nBit = (flags & 64) != 0;
         this.lBit = (flags & 32) != 0;
         this.eBit = (flags & 16) != 0;
         this.vBit = (flags & 8)  != 0;
         this.iBit = (flags & 4)  != 0;
-        this.nonce = this.nBit ? (stream.readByte() << 16) + (stream.readByte() << 8) + stream.readByte() : 0;
+        this.nonce = (data[1] << 16) + (data[2] << 8) + data[3];
         if (!this.iBit) {
             this.instanceID = 0;
-            this.lsBits = stream.readInt();
+            this.lsBits = (data[4] << 24)+(data[5] << 16)+(data[6] <<8)+data[7];
         }
         else {
-            this.instanceID = (stream.readShort() << 8) + (stream.readByte());
-            this.lsBits =  (stream.readByte());
+            this.instanceID = (data[4] << 16)+(data[5] <<8)+data[6];
+            this.lsBits =  data[7];
         }
-        byte[] tmpPayload = new byte[1];
-        stream.readFully(tmpPayload);
-        this.payload = IPPacket.fromByteArray(tmpPayload);
-    }
+        byte[] pl = new byte[data.length-8];
+        System.arraycopy(data, 8, pl, 0, pl.length);
+        this.payload = IPPacket.fromByteArray(pl);
+	}
+    
     public DataMessage(boolean nBit, boolean lBit, boolean eBit, boolean vBit, boolean iBit, int nonce, int lsBits, IPPacket payload) {
         this(nBit, lBit, eBit, vBit, iBit, nonce, 0, lsBits,  payload);
     }
@@ -103,7 +107,10 @@ public class DataMessage {
         this.payload = payload;
     }
 
-    public byte[] toByteArray() {
+    
+    
+    
+	public byte[] toByteArray() {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(byteStream);
         try {

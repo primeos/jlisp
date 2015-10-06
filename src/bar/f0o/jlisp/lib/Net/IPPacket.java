@@ -36,7 +36,7 @@ public abstract class IPPacket {
         public abstract void setToS(byte tos);
 
         public static IPPacket fromByteArray(byte[] packet) throws RuntimeException {
-            if (packet.length < 20) //Minimum packet size of IPv4 is 20 bytes header + 0 bytes payload
+            if (packet.length <= 20) //Minimum packet size of IPv4 is 20 bytes header + 0 bytes payload
                 throw new RuntimeException("Payload too short for IP");
             if ((packet[0] >> 4) == 4)
                 return new IPv4Packet(packet);
