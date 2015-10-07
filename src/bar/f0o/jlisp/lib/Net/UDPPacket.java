@@ -122,4 +122,16 @@ public class UDPPacket extends IPPayload {
 	public short getChecksum() {
 		return this.checksum;
 	}
+
+
+	public short getSrcPort() {
+		return this.srcPort;
+	}
+	public short getDstPort() {
+		return this.dstPort;
+	}
+	
+	public byte[] getPayload(){
+		return this.payload;
+	}
 }

@@ -61,7 +61,7 @@ import java.util.ArrayList;
  * |    AD Type    |       Authentication Data Content . . .       |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
-public class MapReply implements ControlMessage {
+public class MapReply extends ControlMessage {
 
     /**
      * P: probe bit: set if response to locator reachability probe
@@ -70,7 +70,7 @@ public class MapReply implements ControlMessage {
      * Record Count: Number of records in this reply
      * Nonce: 64bit Value from Map-Request or 24 bit value set in a data probe packet
      */
-    private static final byte type = 2;
+
 
     private boolean pBit, eBit, sBit;
     private long  nonce;
@@ -81,10 +81,14 @@ public class MapReply implements ControlMessage {
     //optional
     private byte adType;
     private int  adContent;
-
-
+    
     public MapReply(DataInputStream stream) throws IOException {
-        byte flags = stream.readByte();
+    	this(stream,stream.readByte());
+    }
+
+    public MapReply(DataInputStream stream,byte version) throws IOException {
+    	this.type = 2;
+        byte flags = version;
         this.sBit = (flags & 1) != 0;
         this.eBit = (flags & 2) != 0;
         this.pBit = (flags & 4) != 0;
@@ -149,9 +153,7 @@ public class MapReply implements ControlMessage {
 
     //Getter
 
-    public static byte getType() {
-        return type;
-    }
+   
 
     public boolean ispBit() {
         return pBit;

@@ -30,7 +30,6 @@ import java.util.ArrayList;
 
 /**
  * Map Register
- * <p/>
  * 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * |Type=3 |P|            Reserved               |M| Record Count  |
@@ -58,7 +57,7 @@ import java.util.ArrayList;
  * |  \|                             Loc                           |
  * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
-public class MapRegister implements ControlMessage {
+public class MapRegister extends  ControlMessage {
 
     public enum HmacType {
         NONE(0), HMAC_SHA_1_96(1), HMAC_SHA_256_128(2);
@@ -95,7 +94,6 @@ public class MapRegister implements ControlMessage {
      * AuthenticationDataLength length in octets of the Authentication Data
      * AuthenticationData: the key
      */
-    private static final byte type = 3;
 
     private boolean pFlag, mFlag;
     private byte     recordCount;
@@ -108,7 +106,12 @@ public class MapRegister implements ControlMessage {
 
 
     public MapRegister(DataInputStream stream) throws IOException {
-        byte flag = stream.readByte();
+    	this(stream,stream.readByte());
+    }
+    
+    public MapRegister(DataInputStream stream, byte version) throws IOException {
+    	this.type = 3;
+        byte flag = version;
         this.pFlag = (flag & 8) != 0;
         short reserved = stream.readShort();
         this.mFlag = (reserved & 1) != 0;
@@ -161,9 +164,7 @@ public class MapRegister implements ControlMessage {
         return byteStream.toByteArray();
     }
 
-    public static byte getType() {
-        return type;
-    }
+    
 
     public boolean ispFlag() {
         return pFlag;

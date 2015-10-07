@@ -67,7 +67,7 @@ public class IPv4Packet extends IPPacket {
         for (int i = 20; i < this.headerLength*4; i++) {
             optionHeaders[i-20] = stream.readByte();
         }
-        this.payload = new GenericPayload(stream);
+        this.payload = new GenericPayload(stream,(this.totalLength-(this.headerLength*4)));
     }
 
     public IPv4Packet(byte[] sourceAddress, byte[] destinationAddress) {

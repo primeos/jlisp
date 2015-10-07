@@ -56,7 +56,7 @@ import java.util.Map;
  * |                   Map-Reply Record  ...                       |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
-public class MapRequest implements ControlMessage {
+public class MapRequest extends ControlMessage {
 
     /**
      * A: Authoritative bit: 0: UDP based Map Requests bei ITR 1: Destination site should return address
@@ -78,7 +78,6 @@ public class MapRequest implements ControlMessage {
      * Map-Reply: optional reply included in Request
      */
 
-    private static final byte TYPE = 1;
     private boolean aFlag, mFlag, pFlag, smrBit, pitrBit, smrInvoked;
     private byte irc, recordCount;
     private long    nonce;
@@ -93,7 +92,12 @@ public class MapRequest implements ControlMessage {
     }
 
     public MapRequest(DataInputStream stream) throws IOException {
-        byte flags = stream.readByte();
+    	this(stream,stream.readByte());
+    }
+    
+    public MapRequest(DataInputStream stream,byte version) throws IOException {
+    	this.type = 1;
+        byte flags = version;
 
         this.aFlag = (flags & 1) != 0;
         this.mFlag = (flags & 2) != 0;
@@ -222,10 +226,6 @@ public class MapRequest implements ControlMessage {
     }
 
     //Getter
-
-    public static byte getType() {
-        return TYPE;
-    }
 
     public boolean isaFlag() {
         return aFlag;

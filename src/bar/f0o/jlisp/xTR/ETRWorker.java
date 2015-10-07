@@ -21,6 +21,12 @@
 
 package bar.f0o.jlisp.xTR;
 
+import java.net.DatagramPacket;
+
+import bar.f0o.jlisp.lib.DataPlane.DataMessage;
+import bar.f0o.jlisp.lib.Net.CLibrary;
+import bar.f0o.jlisp.lib.Net.IPPacket;
+
 //Aussen -> Innen
 
 /*
@@ -35,6 +41,56 @@ package bar.f0o.jlisp.xTR;
  of a LISP tunnel as well.
  */
 
-public class ETRWorker {
+public class ETRWorker implements Runnable {
+
+	//File descriptor of the tun device
+	private int fd;
+	//Received Message
+	DatagramPacket received;
+	
+	public ETRWorker(DatagramPacket received, int fd){
+		this.received = received;
+		this.fd = fd;
+	}
+	
+	
+	@Override
+	public void run() {
+		//Getting received bytes
+		byte[] rec = new byte[received.getLength()];
+		System.arraycopy(received.getData(), 0, rec,0, rec.length);
+		//Parsing Received bytes
+		DataMessage message = new DataMessage(rec);		
+		//Extracting IP Packet from LISP Message
+		IPPacket innerIP = message.getPayload();
+		byte[] otherRloc = received.getAddress().getAddress();
+
+		if(message.isnBit()){
+			//Nonce Handling, if n bit is set;
+			//Other RLOCs AFI
+			//If e bit is set, the nonce has to be saved in order to send it back with the next packet
+			//otherwise it is a reply to an echo request and has to be compared to the stored value
+			if(message.iseBit()){
+				Controller.saveNonceFromRloc(otherRloc, message.getNonce());
+			}
+			else{
+				long nonceOld = Controller.getNonceEchoToRloc(otherRloc);
+				if(nonceOld != message.getNonce()) throw new RuntimeException("Wrong nonce echoed");
+			}
+		}else if(message.isvBit()){
+			//Map Version checking if v bit is set
+			short srcVersionNumber = (short) (message.getNonce() >> 16);
+			short dstVersionNumber = (short) (message.getNonce()&0xFFFF);
+			Controller.checkSourceVersionNumber(srcVersionNumber,otherRloc);
+			Controller.checkDestinationVersionNumber(dstVersionNumber,otherRloc);
+		}
+		
+		
+		
+		//Sending inner IP Packet to the tun device
+		byte[] toSend = innerIP.toByteArray();
+		CLibrary.INSTANCE.write(fd, toSend, toSend.length);
+		
+	}
 
 }

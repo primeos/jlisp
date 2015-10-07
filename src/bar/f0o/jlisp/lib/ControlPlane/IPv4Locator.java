@@ -24,9 +24,6 @@ package bar.f0o.jlisp.lib.ControlPlane;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-/**
- * Created by schmidtm on 04.02.15.
- */
 public class IPv4Locator implements Locator {
     private byte[] locator = new byte[4];
 

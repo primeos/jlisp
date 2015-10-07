@@ -25,12 +25,13 @@ import bar.f0o.jlisp.lib.Net.IPPacket;
 import bar.f0o.jlisp.lib.Net.IPv4Packet;
 import bar.f0o.jlisp.lib.Net.UDPPacket;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class EncapsulatedControlMessage implements ControlMessage {
+public class EncapsulatedControlMessage extends ControlMessage {
 
     /**
      * 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
@@ -49,7 +50,7 @@ public class EncapsulatedControlMessage implements ControlMessage {
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      */
 
-    private static final byte type = 8;
+    
 
     private ControlMessage message;
     private byte[]         srcAddr;
@@ -71,8 +72,18 @@ public class EncapsulatedControlMessage implements ControlMessage {
         this.message = message;
     }
 
-    public EncapsulatedControlMessage(DataInputStream stream) {
-
+    public EncapsulatedControlMessage(DataInputStream stream, byte version) throws IOException{
+    	this.type = 8;
+    	this.sBit = (version&0b00001000)!=0;
+    	stream.skipBytes(3);
+    	IPv4Packet innerIP = new IPv4Packet(stream);
+    	this.srcAddr = innerIP.getSrcIP();
+    	this.dstAddr = innerIP.getDstIP();
+    	UDPPacket innerUDP = new UDPPacket(innerIP.getPayload().toByteArray());
+    	this.srcPort = innerUDP.getSrcPort();
+    	this.dstPort = innerUDP.getDstPort();
+    	DataInputStream innerControl = new DataInputStream(new ByteArrayInputStream(innerUDP.getPayload()));
+    	message = ControlMessage.fromStream(innerControl);
     }
 
 
@@ -95,9 +106,7 @@ public class EncapsulatedControlMessage implements ControlMessage {
         return byteStream.toByteArray();
     }
 
-    public static byte getType() {
-        return type;
-    }
+    
 
     public ControlMessage getMessage() {
         return message;

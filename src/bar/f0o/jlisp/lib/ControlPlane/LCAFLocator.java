@@ -23,9 +23,6 @@ package bar.f0o.jlisp.lib.ControlPlane;
 
 import java.io.DataInputStream;
 
-/**
- * Created by schmidtm on 04.02.15.
- */
 public class LCAFLocator implements Locator {
     public LCAFLocator(DataInputStream stream) {
     }

@@ -28,8 +28,8 @@ import java.io.IOException;
 public class GenericPayload extends IPPayload{
 	private byte[] payload;
 	
-	public GenericPayload(DataInputStream stream){
-		payload = new byte[1];
+	public GenericPayload(DataInputStream stream, int size){
+		payload = new byte[size];
 		try {
 			stream.readFully(payload);
 		} catch (IOException e) {

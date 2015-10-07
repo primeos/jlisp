@@ -57,7 +57,11 @@ import java.io.IOException;
 public class MapNotify extends MapRegister {
 
     public MapNotify(DataInputStream stream) throws IOException {
-        super(stream);
+	  	this(stream,stream.readByte());
+    }
+	
+    public MapNotify(DataInputStream stream, byte version) throws IOException {
+        super(stream,version);
     }
 
 }

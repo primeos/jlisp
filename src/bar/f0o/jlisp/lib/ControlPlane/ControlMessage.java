@@ -21,11 +21,13 @@
 
 package bar.f0o.jlisp.lib.ControlPlane;
 
-/**
- * Control Message
- */
-public interface ControlMessage {
+import java.io.DataInputStream;
+import java.io.IOException;
 
+public abstract class ControlMessage {
+	
+	protected byte type;
+	
     //AFI Type
     public enum AfiType {
         NONE(0),
@@ -79,6 +81,25 @@ public interface ControlMessage {
         }
     }
 
+    public static ControlMessage fromStream(DataInputStream stream) throws IOException{
+    	byte version = stream.readByte();
+    	int type = (version & 0xF);
+    	switch(type){
+    	case 1:
+    		return new MapRequest(stream,version);
+    	case 2:
+    		return new MapReply(stream,version);
+    	case 3: 
+    		return new MapRegister(stream,version);
+    	case 8:
+    		return new EncapsulatedControlMessage(stream,version);
+    	}
+    	return null;
+    }
 
-    public byte[] toByteArray();
+    public abstract byte[] toByteArray();
+    
+    public  byte getType() {
+        return type;
+    }
 }

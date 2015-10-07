@@ -21,9 +21,7 @@
 
 package bar.f0o.jlisp.lib.ControlPlane;
 
-/**
- * Created by schmidtm on 04.02.15.
- */
+
 public interface Locator {
     public ControlMessage.AfiType getType();
 
