@@ -1,7 +1,26 @@
 package bar.f0o.jlisp.xTR;
 
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class Controller {	
+		
+	private static ExecutorService poolSend = Executors.newFixedThreadPool(50);
+	private static ExecutorService poolReceive = Executors.newFixedThreadPool(50);
+	private static int fd;
 	
+	public Controller() throws IOException{
+		new Thread(new InputListenerRaw()).start();
+		new Thread(new InputListenerLISP()).start();
+	}
+	
+	
+	public static void main(String[] args) throws IOException{
+		new Controller();
+	}
 	
 	//Save own nonces send with echo request to another RLOC
 	public static synchronized void saveNonceToRloc(byte[] rloc, long nonce){
@@ -37,4 +56,32 @@ public class Controller {
 	public static void checkDestinationVersionNumber(short srcVersionNumber,byte[] otherRloc) {
 		//if own number > srcVersionNumber  SMR
 	}
+	
+	
+	public static void addSendWorker(Runnable worker){
+		poolSend.execute(worker);
+	}
+	
+	public static void addReceiveWorker(Runnable worker){
+		poolReceive.execute(worker);
+	}
+
+
+	public static int getMTU() {
+		return 1500;
+	}
+
+
+	public static int getFd() {
+		return fd;
+	}
+	public static void setFd(int fd){
+		Controller.fd = fd;
+	}
+
+
+	public static String getIP() {
+		return "10.0.0.1/24";
+	}
+	
 }

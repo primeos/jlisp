@@ -43,14 +43,11 @@ import bar.f0o.jlisp.lib.Net.IPPacket;
 
 public class ETRWorker implements Runnable {
 
-	//File descriptor of the tun device
-	private int fd;
 	//Received Message
 	DatagramPacket received;
 	
-	public ETRWorker(DatagramPacket received, int fd){
+	public ETRWorker(DatagramPacket received){
 		this.received = received;
-		this.fd = fd;
 	}
 	
 	
@@ -89,7 +86,7 @@ public class ETRWorker implements Runnable {
 		
 		//Sending inner IP Packet to the tun device
 		byte[] toSend = innerIP.toByteArray();
-		CLibrary.INSTANCE.write(fd, toSend, toSend.length);
+		CLibrary.INSTANCE.write(Controller.getFd(), toSend, toSend.length);
 		
 	}
 

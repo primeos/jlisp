@@ -21,6 +21,15 @@
 
 package bar.f0o.jlisp.xTR;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import bar.f0o.jlisp.lib.DataPlane.DataMessage;
+import bar.f0o.jlisp.lib.Net.IPPacket;
+
 //Innen -> Aussen
 
 /*
@@ -39,6 +48,35 @@ package bar.f0o.jlisp.xTR;
  toward the Internet on the other side.
  */
 
-public class ITRWorker {
+public class ITRWorker implements Runnable{
+	
+	private byte[] data;
+	private DatagramSocket sender;
+	private int length;
+	
+	public ITRWorker(DatagramSocket sender,byte[] data, int length){
+		this.data =  data;
+		this.sender = sender;
+		this.length = length;
+	}
+
+	@Override
+	public void run() {
+		byte[] dataTrimmed = new byte[this.length];
+		System.arraycopy(data, 0, dataTrimmed,0, this.length);
+		IPPacket packet = IPPacket.fromByteArray(dataTrimmed);
+		
+		
+		DataMessage message = new DataMessage(true, false, false, false, false, 0, 0, packet);
+		byte[] messageBytes = message.toByteArray();
+		try {
+			DatagramPacket UDPPacket = new DatagramPacket(messageBytes, messageBytes.length,InetAddress.getByAddress(Cache.getRLocForEid(packet.getDstIP())),4341);
+			sender.send(UDPPacket);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 
 }
