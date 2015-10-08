@@ -13,10 +13,13 @@ public class InputListenerRaw implements Runnable{
 	public  InputListenerRaw() throws IOException {
 		this.sender = new DatagramSocket();
 		byte[] ifr = {108,105,115,112,48,0,0,0,0,0,0,0,0,0,0,0,1,16};
-		int fd = CLibrary.INSTANCE.open("/dev/net/tun", 2);
+		this.fd = CLibrary.INSTANCE.open("/dev/net/tun", 2);
+		Controller.setFd(fd);
 		CLibrary.INSTANCE.ioctl(fd,((long)0x400454ca), ifr);
 		Runtime.getRuntime().exec("ip a a "+Controller.getIP() +" dev lisp0");
 		Runtime.getRuntime().exec("ip l s dev lisp0 up");
+		Runtime.getRuntime().exec("ip l s dev lisp0 mtu 1300");
+
 	}
 	
 	
