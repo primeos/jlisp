@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import bar.f0o.jlisp.lib.Net.IPPacket;
-import sun.misc.IOUtils;
-import sun.nio.ch.IOUtil; 
 
 /**
  * Dataplane Message

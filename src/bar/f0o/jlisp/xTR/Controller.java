@@ -81,7 +81,7 @@ public class Controller {
 
 
 	public static String getIP() {
-		return "10.0.0.1/24";
+		return "10.0.0.2/24";
 	}
 	
 }

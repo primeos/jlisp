@@ -9,7 +9,7 @@ public class Cache {
 	}
 	
 	public static byte[] getRLocForEid(byte[] eid){
-		byte[] rloc = {(byte)134,2,11,(byte)145};
+		byte[] rloc = {(byte)134,2,11,(byte)132};
 		return rloc;
 	}
 
