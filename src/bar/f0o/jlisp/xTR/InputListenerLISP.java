@@ -16,7 +16,7 @@ public class InputListenerLISP implements Runnable{
 	@Override
 	public void run() {
 		while(true){
-			byte[] buf = new byte[Config.getMTU()];
+			byte[] buf = new byte[Controller.getMTU()];
 			DatagramPacket p = new DatagramPacket(buf, buf.length);
 			try {
 				receiver.receive(p);

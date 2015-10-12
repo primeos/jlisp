@@ -46,7 +46,7 @@ public class Loc {
      * Priority: smaller -> higher priority 255 means not used for unicast forwarding
      * Weight: Balance of traffic when priority is the same
      * M-Priority: Priority for multicast
-     * M-Weight: Weight for unicast
+     * M-Weight: Weight for multicast
      * Unused Flags:0
      * L: local locator (0 if proxy reply)
      * p: for probing, this is the probed locator

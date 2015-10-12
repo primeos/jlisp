@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import bar.f0o.jlisp.lib.Net.IPPacket;
-import sun.misc.IOUtils;
-import sun.nio.ch.IOUtil; 
 
 /**
  * Dataplane Message
@@ -116,15 +114,15 @@ public class DataMessage {
         try {
             byte flagsTypeTmp = 0;
             if (this.nBit)
-                flagsTypeTmp |= 128;
-            if (this.lBit)
                 flagsTypeTmp |= 64;
-            if (this.eBit)
+            if (this.lBit)
                 flagsTypeTmp |= 32;
+            if (this.eBit)
+                flagsTypeTmp |= 16;
             if (this.vBit)
-               flagsTypeTmp |= 16;
-            if ( this.iBit)
                flagsTypeTmp |= 8;
+            if ( this.iBit)
+               flagsTypeTmp |= 4;
             int flagsAndNonce = (flagsTypeTmp << 24) + (this.nonce & 0b0000000011111111111111111111111111111111);
             stream.writeInt(flagsAndNonce);
             if (this.iBit) {
