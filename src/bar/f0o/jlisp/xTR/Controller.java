@@ -12,7 +12,9 @@ public class Controller {
 	private static ExecutorService poolReceive = Executors.newFixedThreadPool(50);
 	private static int fd;
 	
+	
 	public Controller() throws IOException{
+		//MS IP null
 		new Thread(new InputListenerRaw()).start();
 		new Thread(new InputListenerLISP()).start();
 	}
@@ -31,8 +33,7 @@ public class Controller {
 	public static synchronized long getNonceEchoToRloc(byte[] rloc){
 		return 0;
 	}
-	
-	
+		
 	
 	
 	//Save echo requests from other RLOCs
@@ -67,10 +68,7 @@ public class Controller {
 	}
 
 
-	public static int getMTU() {
-		return 1500;
-	}
-
+	
 
 	public static int getFd() {
 		return fd;
@@ -80,8 +78,6 @@ public class Controller {
 	}
 
 
-	public static String getIP() {
-		return "10.0.0.1/24";
-	}
+	
 	
 }

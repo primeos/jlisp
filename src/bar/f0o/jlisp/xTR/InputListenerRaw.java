@@ -16,9 +16,9 @@ public class InputListenerRaw implements Runnable{
 		this.fd = CLibrary.INSTANCE.open("/dev/net/tun", 2);
 		Controller.setFd(fd);
 		CLibrary.INSTANCE.ioctl(fd,((long)0x400454ca), ifr);
-		Runtime.getRuntime().exec("ip a a "+Controller.getIP() +" dev lisp0");
+		Runtime.getRuntime().exec("ip a a "+Config.getIP() +" dev lisp0");
 		Runtime.getRuntime().exec("ip l s dev lisp0 up");
-		Runtime.getRuntime().exec("ip l s dev lisp0 mtu 1300");
+		Runtime.getRuntime().exec("ip l s dev lisp0 mtu"+Config.getMTU());
 
 	}
 	
@@ -26,7 +26,7 @@ public class InputListenerRaw implements Runnable{
 	@Override
 	public void run() {
 		while(true){
-			byte[] incomming = new byte[Controller.getMTU()];
+			byte[] incomming = new byte[Config.getMTU()];
 			int length = CLibrary.INSTANCE.read(fd, incomming, incomming.length);
 			Controller.addSendWorker(new ITRWorker(sender,incomming,length));
 		}
