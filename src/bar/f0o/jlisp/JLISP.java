@@ -2,7 +2,6 @@
  * Copyright (c) 2015 by                                                      *
  * Andreas Stockmayer <stockmay@f0o.bar> and                                  *
  * Mark Schmidt <schmidtm@f0o.bar>                                            *
- * Andreas Srockmayer <stockmay@f0o.bar>                                      *
  *                                                                            *
  * This file (JLISP.java) is part of jlisp.                                   *
  *                                                                            *
@@ -30,9 +29,13 @@ import java.util.Properties;
 
 
 public class JLISP {
-    private final static int XTR = 0;
-    private final static int MS = 1;
-
+    private final static int MS = 0;
+    private final static int XTR = 1;
+    private final static int RTR = 2;
+    private final static int PXTR = 3;
+    private final static int NTR = 5;
+    private final static int HAXTR = 7;
+    private final static int HARTR = 8;
 
     public static void main(String[] args) {
         if(args.length != 1) {
@@ -45,11 +48,21 @@ public class JLISP {
             try {
                 in = new FileInputStream(args[0]);
                 prop.load(in);
-                int component = Integer.parseInt(prop.getProperty("app.component", "0"));
+                int component = Integer.parseInt(prop.getProperty("app.component", "1"));
                 switch(component) {
+                    case JLISP.MS:
+                        break;
                     case JLISP.XTR:
                         break;
-                    case JLISP.MS:
+                    case JLISP.RTR:
+                        break;
+                    case JLISP.PXTR:
+                        break;
+                    case JLISP.NTR:
+                        break;
+                    case JLISP.HAXTR:
+                        break;
+                    case JLISP.HARTR:
                         break;
                     default:
                         System.err.println("no such component");
