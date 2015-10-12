@@ -114,15 +114,15 @@ public class DataMessage {
         try {
             byte flagsTypeTmp = 0;
             if (this.nBit)
-                flagsTypeTmp |= 64;
+                flagsTypeTmp |= 128;
             if (this.lBit)
-                flagsTypeTmp |= 32;
+                flagsTypeTmp |= 64;
             if (this.eBit)
-                flagsTypeTmp |= 16;
+                flagsTypeTmp |= 32;
             if (this.vBit)
-               flagsTypeTmp |= 8;
+               flagsTypeTmp |= 16;
             if ( this.iBit)
-               flagsTypeTmp |= 4;
+               flagsTypeTmp |= 8;
             int flagsAndNonce = (flagsTypeTmp << 24) + (this.nonce & 0b0000000011111111111111111111111111111111);
             stream.writeInt(flagsAndNonce);
             if (this.iBit) {

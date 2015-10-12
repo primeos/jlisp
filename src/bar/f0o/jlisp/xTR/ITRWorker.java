@@ -53,6 +53,7 @@ public class ITRWorker implements Runnable{
 	private byte[] data;
 	private DatagramSocket sender;
 	private int length;
+
 	
 	public ITRWorker(DatagramSocket sender,byte[] data, int length){
 		this.data =  data;
@@ -70,7 +71,7 @@ public class ITRWorker implements Runnable{
 		DataMessage message = new DataMessage(true, false, false, false, false, 0, 0, packet);
 		byte[] messageBytes = message.toByteArray();
 		try {
-			DatagramPacket UDPPacket = new DatagramPacket(messageBytes, messageBytes.length,InetAddress.getByAddress(Cache.getRLocForEid(packet.getDstIP())),4341);
+			DatagramPacket UDPPacket = new DatagramPacket(messageBytes, messageBytes.length,InetAddress.getByAddress(Cache.getCache().getRLocForEid(packet.getDstIP())),4341);
 			sender.send(UDPPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
