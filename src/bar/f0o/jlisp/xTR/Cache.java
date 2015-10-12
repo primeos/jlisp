@@ -20,15 +20,13 @@
  ******************************************************************************/
 package bar.f0o.jlisp.xTR;
 
-<<<<<<< HEAD
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
-=======
->>>>>>> f38cb08f3d27843b8bfc80129ec57b67819ffab3
 import java.util.HashMap;
 import java.util.Random;
 
@@ -43,8 +41,7 @@ import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
 
 
 public class Cache {
-	
-<<<<<<< HEAD
+
 	private HashMap<EidPrefix,CacheEntry> mappings = new HashMap<EidPrefix,CacheEntry>();
 	byte[] mappingSystemIP;
 	
@@ -163,20 +160,11 @@ public class Cache {
 			catch(Exception e){
 				e.printStackTrace();
 			}
+		}
 
 			
 			
 			
 		}
-=======
-	private static synchronized boolean tryToLock(byte[] eid){
-		return false;
-	}
-	
-	public static byte[] getRLocForEid(byte[] eid){
-		byte[] rloc = {(byte)134,2,11,(byte)145};
-		return rloc;
->>>>>>> f38cb08f3d27843b8bfc80129ec57b67819ffab3
-	}
 
 }
