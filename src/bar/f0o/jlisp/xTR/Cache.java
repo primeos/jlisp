@@ -26,12 +26,23 @@ import java.io.DataInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import bar.f0o.jlisp.lib.ControlPlane.EncapsulatedControlMessage;
+import bar.f0o.jlisp.lib.ControlPlane.IPv4Locator;
 import bar.f0o.jlisp.lib.ControlPlane.Loc;
+import bar.f0o.jlisp.lib.ControlPlane.MapRegister;
+import bar.f0o.jlisp.lib.ControlPlane.MapRegister.HmacType;
 import bar.f0o.jlisp.lib.ControlPlane.MapReply;
 import bar.f0o.jlisp.lib.ControlPlane.MapRequest;
 import bar.f0o.jlisp.lib.ControlPlane.Rec;
@@ -42,7 +53,9 @@ import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
 
 public class Cache {
 
-	private HashMap<EidPrefix,CacheEntry> mappings = new HashMap<EidPrefix,CacheEntry>();
+	private  ConcurrentHashMap<EidPrefix,CacheEntry> mappings = new ConcurrentHashMap<EidPrefix,CacheEntry>();
+	private HashSet<byte[]> lockedEids = new HashSet<>();
+	
 	byte[] mappingSystemIP;
 	
 	private static Cache cache;
@@ -72,10 +85,15 @@ public class Cache {
 				longestPrefix = pre.getPrefixLength();
 			}
 		}
-		if(mapping == null){
-			new Thread(new MapRequester(mappingSystemIP, eid, mappings));
+
+		if(mapping == null ){
+			if(!lockedEids.contains(eid)){
+				new Thread(new MapRequester(mappingSystemIP, eid, mappings)).start();
+				lockedEids.add(eid);
+			}
 			return null;
 		}
+		lockedEids.remove(eid);
 		return Config.useV4()?mapping.getFirstV4Rloc():mapping.getFirstV6Rloc();
 	}
 
@@ -86,10 +104,10 @@ public class Cache {
 	class MapRequester implements Runnable{
 		
 		byte[] eidRequest;
-		HashMap<EidPrefix,CacheEntry> mappingCache;
+		ConcurrentHashMap<EidPrefix,CacheEntry> mappingCache;
 		byte[] mappingSystemIP;
 		
-		public MapRequester(byte[] mappingSystemIP, byte[] eidRequest, HashMap<EidPrefix,CacheEntry> mappingCache){
+		public MapRequester(byte[] mappingSystemIP, byte[] eidRequest, ConcurrentHashMap<EidPrefix,CacheEntry> mappingCache){
 			this.eidRequest = eidRequest;
 			this.mappingCache = mappingCache;
 			this.mappingSystemIP = mappingSystemIP;
@@ -106,7 +124,7 @@ public class Cache {
 			recs.add(r);
 			HashMap<Short,byte[]> itrs = new HashMap<Short, byte[]>();
 			
-			itrs.put((short) 1, Config.getOwnRloc());
+			itrs.put((short) 1, Config.getOwnRloc()[0]);
 			
 			byte src[] = {};
 			MapRequest req = new MapRequest( false,false, false, false, false,false 
@@ -114,7 +132,7 @@ public class Cache {
 					AfiType.NONE, src,
 					itrs, recs, null);
 					
-			EncapsulatedControlMessage message = new EncapsulatedControlMessage(Config.getOwnRloc(),
+			EncapsulatedControlMessage message = new EncapsulatedControlMessage(Config.getOwnRloc()[0],
 					eidRequest,(short)60573,(short)4342,req);	
 			
 			byte[] ligBytes = message.toByteArray();
@@ -149,7 +167,7 @@ public class Cache {
 				CacheEntry resultEntry = new CacheEntry();
 				for(Loc loc : record.getLocs()){
 					if(loc.getLocAFI()==ControlMessage.AfiType.IPv4)
-							resultEntry.addV4Rloc(loc);
+						resultEntry.addV4Rloc(loc);
 					else 
 						resultEntry.addV6Rloc(loc);
 				}
@@ -160,11 +178,16 @@ public class Cache {
 			catch(Exception e){
 				e.printStackTrace();
 			}
-		}
-
-			
-			
+		}			
 			
 		}
+	
+	
+	
+	
+	
+	
+	
+	
 
 }

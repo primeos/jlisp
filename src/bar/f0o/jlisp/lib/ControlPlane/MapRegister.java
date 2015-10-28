@@ -25,7 +25,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 
 /**
@@ -83,6 +88,16 @@ public class MapRegister extends  ControlMessage {
             }
             return null;
         }
+
+		public short getLength() {
+			switch(val){
+				case 1:
+						return (short)20;
+				case 2:
+						return (short)24;//???
+			}
+			return 0;
+		}
     }
 
     /**
@@ -133,10 +148,32 @@ public class MapRegister extends  ControlMessage {
         this.mFlag = mFlag;
         this.recordCount = (byte) records.size();
         this.nonce = nonce;
-        this.keyId = keyId;
-        this.authenticationDataLength = (short) authenticationData.length;
-        this.authenticationData = authenticationData;
+        this.keyId = keyId;     
         this.records = records;
+        if(keyId != HmacType.NONE){
+        	this.authenticationDataLength = keyId.getLength();
+        	this.authenticationData = new byte[authenticationDataLength];
+        	byte[] toAuthenticate = toByteArray();
+        	String hmac;
+        	if(keyId == HmacType.HMAC_SHA_1_96)
+        		hmac="HmacSha1";
+        	else
+        		hmac="HmacSha256";
+        	SecretKeySpec key = new SecretKeySpec(authenticationData, hmac);
+        	try {
+				Mac mac = Mac.getInstance(hmac);
+				mac.init(key);
+				this.authenticationData = mac.doFinal(toAuthenticate);
+			} catch (NoSuchAlgorithmException | InvalidKeyException e) {
+				e.printStackTrace();
+			}        	
+
+        }
+        else{
+        	this.authenticationData = authenticationData;
+        	this.authenticationDataLength = (short) authenticationData.length;
+        	
+        }
     }
 
     public byte[] toByteArray() {

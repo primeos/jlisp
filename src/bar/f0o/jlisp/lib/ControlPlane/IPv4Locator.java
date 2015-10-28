@@ -30,6 +30,10 @@ public class IPv4Locator implements Locator {
     public IPv4Locator(DataInputStream stream) throws IOException {
         stream.read(locator);
     }
+    
+    public IPv4Locator(byte[] loc){
+    	this.locator = loc;
+    }
 
     @Override
     public ControlMessage.AfiType getType() {

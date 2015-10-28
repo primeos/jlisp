@@ -44,8 +44,10 @@ public class jLig {
 	
 	public static void main(String args[]) throws Exception {
 		//Read parameters
-		String ms = args[0];
-		String eid = args[1];
+		//String ms = args[0];
+		//String eid = args[1];
+		String ms = "134.2.11.173";
+		String eid = "10.0.0.1";
 		//Parse requestet EID
 		byte[] eidBytes;
 		AfiType eidType = AfiType.IPv4;

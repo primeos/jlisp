@@ -44,9 +44,9 @@ public class CacheEntry {
 	
 	
 	public byte[] getFirstV4Rloc(){
-		if(ipv4Rloc.size()>=0) return null;
+		if(ipv4Rloc.size()<=0) return null;
 		Loc[] locs = new Loc[ipv4Rloc.size()];
-		
+
 		int numOfLocs = 0;
 		int minPrio = 254;
 		for(Loc loc : ipv4Rloc){
@@ -60,19 +60,21 @@ public class CacheEntry {
 			}
 		}
 		
+		
 		int weights = 0;
-		int targetWeight = rand.nextInt(255);
+		for(int i=0;i<numOfLocs;i++) weights+=locs[i].getWeight();
+		int targetWeight = rand.nextInt(weights);
 		for(int i=0;i<numOfLocs;i++){ 
-			if(locs[i].getWeight() < targetWeight - weights) 
+			if(locs[i].getWeight() >= targetWeight) 
 				return locs[i].getLocator().toByteArray();
-			weights += locs[i].getWeight();
+			targetWeight -= locs[i].getWeight();
 		}
 		return null;
 		
 	}
 	
 	public byte[] getFirstV6Rloc(){
-		if(ipv6Rloc.size()>=0) return null;
+		if(ipv6Rloc.size()<=0) return null;
 		Loc[] locs = new Loc[ipv6Rloc.size()];
 		
 		int numOfLocs = 0;

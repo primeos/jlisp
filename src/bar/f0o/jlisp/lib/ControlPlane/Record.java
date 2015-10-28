@@ -126,7 +126,7 @@ public class Record {
             short reservedTmp = (short) (reserved | (act << 14));
             if (aFlag)
                 reservedTmp |= 0b0010000000000000;
-            stream.writeByte(reservedTmp); //TODO
+            stream.writeShort(reservedTmp); //TODO
             short versionNumberTmp = (short) (versionNumber | rsvd);
             stream.writeShort(versionNumberTmp);
             stream.writeShort(this.eidPrefixAfi.getVal());
@@ -138,24 +138,7 @@ public class Record {
         }
         return byteStream.toByteArray();
     }
- /*
- * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *     |                          Record TTL                           |
- *     |-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
- * R   | Loc Count | EID mask-len  | ACT |A|      Reserved         |
- * e   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * c   | Rsvd  |  Map-Version Number   |        EID-Prefix-AFI         |
- * o   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * r   |                          EID-Prefix                           |
- * d   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |  /|    Priority   |    Weight     |  M Priority   |   M Weight    |
- * | L +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * | o |        Unused Flags     |L|p|R|           Loc-AFI             |
- * | c +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |  \|                             Loc                           |
- * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- */
-
+ 
     @Override
     public String toString() {
         String ret = "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n";

@@ -101,7 +101,8 @@ public class Loc {
         this.locator = locator;
     }
 
-    public byte[] toByteArray() {
+
+	public byte[] toByteArray() {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(byteStream);
         try {
@@ -117,7 +118,7 @@ public class Loc {
             if (lFlag)
                 flags |= 0b000000000000100;
             stream.writeShort(flags);
-            stream.writeByte(this.locAFI.getVal());
+            stream.writeShort(this.locAFI.getVal());
             stream.write(this.locator.toByteArray());
         } catch (IOException e) {
             e.printStackTrace();
