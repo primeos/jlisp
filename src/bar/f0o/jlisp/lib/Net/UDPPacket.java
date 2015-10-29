@@ -76,7 +76,6 @@ public class UDPPacket extends IPPayload {
 	            stream.writeShort(length);
 	            stream.writeShort(checksum);
 	            stream.write(payload);
-	            System.out.println("payload");
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	        }

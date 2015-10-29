@@ -71,7 +71,6 @@ public class Rec {
             stream.writeByte(this.resevered);
             stream.writeByte(this.eidMaskLen);
             stream.writeShort(this.eidPrefixAfi.getVal());
-            System.out.println(eidPrefixAfi.getVal());
             stream.write(this.eidPrefix);
         } catch (IOException e) {
             e.printStackTrace();

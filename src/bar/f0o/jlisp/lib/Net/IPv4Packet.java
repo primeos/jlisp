@@ -132,7 +132,6 @@ public class IPv4Packet extends IPPacket {
     	this.protocol = payload.getProtocol();
         this.payload = payload;
         this.totalLength = (short) ((this.headerLength + payload.getLength()) * 4);
-        System.out.println(totalLength + " "+ payload.getLength());
         this.checksum();
     }
     

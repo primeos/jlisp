@@ -26,18 +26,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
 import bar.f0o.jlisp.lib.ControlPlane.IPv4Locator;
 import bar.f0o.jlisp.lib.ControlPlane.Loc;
-import bar.f0o.jlisp.lib.ControlPlane.Locator;
 import bar.f0o.jlisp.lib.ControlPlane.MapRegister;
 import bar.f0o.jlisp.lib.ControlPlane.MapRegister.HmacType;
-import bar.f0o.jlisp.lib.ControlPlane.Rec;
 import bar.f0o.jlisp.lib.ControlPlane.Record;
 
 public class Controller {	
@@ -76,7 +72,7 @@ public class Controller {
 		DatagramSocket sock;
 		try{
 			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(Config.getMS()), 4342);
-			sock = new DatagramSocket(60573);
+			sock = new DatagramSocket(60574);
 			sock.send(ligPacket);
 		}catch(Exception e){e.printStackTrace();};
 	}
