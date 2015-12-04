@@ -41,9 +41,10 @@ public class Controller {
 	private static ExecutorService poolSend = Executors.newFixedThreadPool(50);
 	private static ExecutorService poolReceive = Executors.newFixedThreadPool(50);
 	private static int fd;
+	private static InputListenerRaw inputRaw = new InputListenerRaw();	
 	
 	public Controller() throws IOException{
-		new Thread(new InputListenerRaw()).start();
+		new Thread(inputRaw).start();
 		new Thread(new InputListenerLISP()).start();
 	}
 	
@@ -138,6 +139,11 @@ public class Controller {
 		Controller c = new Controller();
 		c.register();
 		
+	}
+
+
+	public static DatagramSocket getLispSender() {
+		return inputRaw.getSender();
 	}
 	
 	

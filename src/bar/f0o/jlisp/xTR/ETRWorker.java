@@ -86,8 +86,12 @@ public class ETRWorker implements Runnable {
 		
 		//Sending inner IP Packet to the tun device
 		byte[] toSend = innerIP.toByteArray();
-		CLibrary.INSTANCE.write(Controller.getFd(), toSend, toSend.length);
-		
+		if(Config.isRTR()){
+			Controller.addSendWorker(new ITRWorker(Controller.getLispSender(),toSend,toSend.length));
+		}
+		else{
+			CLibrary.INSTANCE.write(Controller.getFd(), toSend, toSend.length);
+		}
 	}
 
 }

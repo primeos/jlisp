@@ -45,4 +45,8 @@ public class Config {
 	public static boolean useV4() {
 		return true;
 	}
+	
+	public static boolean isRTR(){
+		return false;
+	}
 }

@@ -31,7 +31,8 @@ public class InputListenerRaw implements Runnable{
 	private int fd;
 	private DatagramSocket sender;
 	
-	public  InputListenerRaw() throws IOException {
+	public  InputListenerRaw()  {
+		try{
 		this.sender = new DatagramSocket();
 		byte[] ifr = {108,105,115,112,48,0,0,0,0,0,0,0,0,0,0,0,1,16};
 		this.fd = CLibrary.INSTANCE.open("/dev/net/tun", 2);
@@ -40,6 +41,9 @@ public class InputListenerRaw implements Runnable{
 		Runtime.getRuntime().exec("ip a a "+Controller.getIP() +" dev lisp0");
 		Runtime.getRuntime().exec("ip l s dev lisp0 up");
 		Runtime.getRuntime().exec("ip l s dev lisp0 mtu 1300");
+		}catch(IOException e){
+			e.printStackTrace();s
+		}
 
 	}
 	
@@ -53,4 +57,7 @@ public class InputListenerRaw implements Runnable{
 		}
 	}
 
+	public DatagramSocket getSender(){
+		return this.sender;
+	}
 }
