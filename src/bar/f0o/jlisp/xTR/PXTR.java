@@ -34,7 +34,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-public abstract class PXTR extends LISPComponent {
+public class PXTR extends LISPComponent {
 
 
 	public PXTR() throws IOException{
@@ -42,7 +42,7 @@ public abstract class PXTR extends LISPComponent {
 		new Thread(new InputListenerLISP()).start();
 	}
 	
-	public void run(){
+	public void start(){
 		this.register();
 	}
 	

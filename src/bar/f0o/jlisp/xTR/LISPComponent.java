@@ -21,6 +21,13 @@
 
 package bar.f0o.jlisp.xTR;
 
+import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
+import bar.f0o.jlisp.lib.ControlPlane.IPv4Locator;
+import bar.f0o.jlisp.lib.ControlPlane.Loc;
+import bar.f0o.jlisp.lib.ControlPlane.MapRegister;
+import bar.f0o.jlisp.lib.ControlPlane.MapRegister.HmacType;
+import bar.f0o.jlisp.lib.ControlPlane.Record;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -29,57 +36,14 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
-import bar.f0o.jlisp.lib.ControlPlane.IPv4Locator;
-import bar.f0o.jlisp.lib.ControlPlane.Loc;
-import bar.f0o.jlisp.lib.ControlPlane.MapRegister;
-import bar.f0o.jlisp.lib.ControlPlane.MapRegister.HmacType;
-import bar.f0o.jlisp.lib.ControlPlane.Record;
+public abstract class LISPComponent {
 
-public class LISPComponent {
+	protected ExecutorService poolSend = Executors.newFixedThreadPool(50);
+	protected ExecutorService poolReceive = Executors.newFixedThreadPool(50);
+	protected static int fd;
+	protected static InputListenerRaw inputRaw = new InputListenerRaw();
 
-	private static ExecutorService poolSend = Executors.newFixedThreadPool(50);
-	private static ExecutorService poolReceive = Executors.newFixedThreadPool(50);
-	private static int fd;
-	private static InputListenerRaw inputRaw = new InputListenerRaw();
-
-	public LISPComponent() throws IOException{
-		new Thread(inputRaw).start();
-		new Thread(new InputListenerLISP()).start();
-	}
-	
-	
-	//Only v4 At the moment
-	private void register(){
-		ArrayList<Record> records = new ArrayList<>();
-		for(String prefix : Config.getEIDPrefix()){
-			ArrayList<Loc> locators = new ArrayList<>();
-			for(byte[] loc : Config.getOwnRloc()){
-				Loc l = new Loc((byte)1,(byte)1,(byte)1,(byte)1,true,false,false,AfiType.IPv4,new IPv4Locator(loc));
-				locators.add(l);
-			}
-			String[] eidPrefix = prefix.split("/");
-			String[] eidBytes = eidPrefix[0].split("\\.");
-			byte[] eid = new byte[4];
-			for(int i=0;i<4;i++){
-				eid[i] = Byte.valueOf(eidBytes[i]);
-			}
-			Record r = new Record((byte)1,Byte.valueOf(eidPrefix[1]),(byte)0,false,(short)1,AfiType.IPv4,eid,locators);
-			records.add(r);
-		}
-		MapRegister reg = new MapRegister(true, true, 1234, HmacType.HMAC_SHA_1_96, "lisp1-pw".getBytes(), records);
-		byte[] message = reg.toByteArray();
-		//Send Message
-		DatagramSocket sock;
-		try{
-			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(Config.getMS()), 4342);
-			sock = new DatagramSocket(60574);
-			sock.send(ligPacket);
-		}catch(Exception e){e.printStackTrace();};
-	}
-	
-	
-	
+	public abstract void start();
 	
 	//Save own nonces send with echo request to another RLOC
 	public static synchronized void saveNonceToRloc(byte[] rloc, long nonce){
@@ -110,11 +74,11 @@ public class LISPComponent {
 		//if own number > srcVersionNumber  SMR
 	}
 		
-	public static void addSendWorker(Runnable worker){
+	public void addSendWorker(Runnable worker){
 		poolSend.execute(worker);
 	}
 	
-	public static void addReceiveWorker(Runnable worker){
+	public void addReceiveWorker(Runnable worker){
 		poolReceive.execute(worker);
 	}
 
@@ -133,14 +97,6 @@ public class LISPComponent {
 	public static String getIP() {
 		return "10.0.0.1/24";
 	}
-	
-	public static void main(String[ ] args) throws Exception{
-	
-		LISPComponent c = new LISPComponent();
-		c.register();
-		
-	}
-
 
 	public static DatagramSocket getLispSender() {
 		return inputRaw.getSender();

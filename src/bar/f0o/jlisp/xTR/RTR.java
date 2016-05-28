@@ -34,7 +34,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-public abstract class RTR extends LISPComponent {
+public class RTR extends LISPComponent {
 
 
 	public RTR() throws IOException{
@@ -42,7 +42,7 @@ public abstract class RTR extends LISPComponent {
 		new Thread(new InputListenerLISP()).start();
 	}
 	
-	public void run(){
+	public void start(){
 		this.register();
 	}
 	
@@ -107,11 +107,11 @@ public abstract class RTR extends LISPComponent {
 		//if own number > srcVersionNumber  SMR
 	}
 		
-	public static void addSendWorker(Runnable worker){
+	public void addSendWorker(Runnable worker){
 		poolSend.execute(worker);
 	}
 	
-	public static void addReceiveWorker(Runnable worker){
+	public void addReceiveWorker(Runnable worker){
 		poolReceive.execute(worker);
 	}
 

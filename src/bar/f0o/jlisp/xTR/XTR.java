@@ -21,6 +21,7 @@
 
 package bar.f0o.jlisp.xTR;
 
+import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
 import bar.f0o.jlisp.lib.ControlPlane.IPv4Locator;
 import bar.f0o.jlisp.lib.ControlPlane.Loc;
@@ -36,28 +37,24 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public abstract class XTR implements Runnable {
+public class XTR extends LISPComponent {
 
-	private static ExecutorService poolSend = Executors.newFixedThreadPool(50);
-	private static ExecutorService poolReceive = Executors.newFixedThreadPool(50);
-	private static int fd;
-	private static InputListenerRaw inputRaw = new InputListenerRaw();
 
 	public XTR() throws IOException{
 		new Thread(inputRaw).start();
 		new Thread(new InputListenerLISP()).start();
 	}
 	
-	public void run(){
-
+	public void start(){
+		this.register();
 	}
-	
+
 	//Only v4 At the moment
 	private void register(){
 		ArrayList<Record> records = new ArrayList<>();
-		for(String prefix : Config.getEIDPrefix()){
+		for(String prefix : JLISP.getConfig().getEIDs()){
 			ArrayList<Loc> locators = new ArrayList<>();
-			for(byte[] loc : Config.getOwnRloc()){
+			for(byte[] loc : JLISP.getConfig().getOwnRloc()){
 				Loc l = new Loc((byte)1,(byte)1,(byte)1,(byte)1,true,false,false,AfiType.IPv4,new IPv4Locator(loc));
 				locators.add(l);
 			}
@@ -80,44 +77,44 @@ public abstract class XTR implements Runnable {
 			sock.send(ligPacket);
 		}catch(Exception e){e.printStackTrace();};
 	}
-	
-	
-	
-	
+
+
+
+
 	//Save own nonces send with echo request to another RLOC
 	public static synchronized void saveNonceToRloc(byte[] rloc, long nonce){
-		
+
 	}
-	
+
 	//Get nonce that should be in a packet from another RLOC
 	public static synchronized long getNonceEchoToRloc(byte[] rloc){
 		return 0;
 	}
-	
+
 	//Save echo requests from other RLOCs
 	public static synchronized void saveNonceFromRloc(byte[] rloc, long nonce){
-		
+
 	}
 	//Get echo request that has to be sent back
 	public static synchronized long getNonceEchoFromRloc(byte[] rloc){
 		return 0;
-	}	
-	
+	}
+
 	//Check if Other RLocs Version > saved one
 	public static void checkSourceVersionNumber(short srcVersionNumber,byte[] otherRloc) {
 		//If other RLOCs Version > then Map Request
 	}
-	
+
 	//Check if own number > parameter
 	public static void checkDestinationVersionNumber(short srcVersionNumber,byte[] otherRloc) {
 		//if own number > srcVersionNumber  SMR
 	}
-		
-	public static void addSendWorker(Runnable worker){
+
+	public void addSendWorker(Runnable worker){
 		poolSend.execute(worker);
 	}
-	
-	public static void addReceiveWorker(Runnable worker){
+
+	public void addReceiveWorker(Runnable worker){
 		poolReceive.execute(worker);
 	}
 
@@ -135,13 +132,6 @@ public abstract class XTR implements Runnable {
 
 	public static String getIP() {
 		return "10.0.0.1/24";
-	}
-	
-	public static void main(String[ ] args) throws Exception{
-	
-		XTR c = new XTR();
-		c.register();
-		
 	}
 
 

@@ -42,7 +42,7 @@ public class MS extends LISPComponent {
 		new Thread(new InputListenerLISP()).start();
 	}
 	
-	public void run(){
+	public void start(){
 		this.register();
 	}
 	

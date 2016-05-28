@@ -21,6 +21,10 @@
 
 package bar.f0o.jlisp;
 
+import bar.f0o.jlisp.xTR.*;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -39,9 +43,9 @@ public class JLISP {
     private final static int HAXTR = 7;
     private final static int HARTR = 8;
 
-    private static Properties config;
+    private static Config config;
 
-    public static Properties getConfig() {
+    public static Config getConfig() {
         return JLISP.config;
     }
 
@@ -51,24 +55,32 @@ public class JLISP {
             System.exit(-1);
         } else {
             boolean foreground = args.length == 2 ? args[1].equalsIgnoreCase("-f"): false;
-            config = new Properties();
+            config = new Config();
             try {
                 config.load(new FileInputStream(args[0]));
-                int component = Integer.parseInt(config.getProperty("app.component", "1"));
+                int component = config.getComponent();
+                LISPComponent lisp = null;
                 switch (component) {
                     case JLISP.MS:
+                        lisp = new MS();
                         break;
                     case JLISP.XTR:
+                        lisp = new XTR();
                         break;
                     case JLISP.RTR:
+                        lisp = new RTR();
                         break;
                     case JLISP.PXTR:
+                        lisp = new PXTR();
                         break;
                     case JLISP.NTR:
+                        lisp = new NTR();
                         break;
                     case JLISP.HAXTR:
+                        lisp = new HAXTR();
                         break;
                     case JLISP.HARTR:
+                        lisp = new HARTR();
                         break;
                     default:
                         System.err.println("no such component");
@@ -82,7 +94,7 @@ public class JLISP {
                             System.out.printf("Supported commands are:\n\t%s\n\t%s\n\t%s", "show config", "write config", "set <key> <value>");
                         if (cmd.equalsIgnoreCase("show config")) JLISP.getConfig().list(System.out);
                         if (cmd.equalsIgnoreCase("write config"))
-                            JLISP.getConfig().store(new FileOutputStream(args[0]), "JLISP config\napp.component: ms=0, xtr=1");
+                            JLISP.getConfig().store(new FileOutputStream(args[0]));//, "JLISP config\napp.component: ms=0, xtr=1");
                         if (cmd.toLowerCase().startsWith("set ")) {
                             StringTokenizer tk = new StringTokenizer(cmd, " ");
                             if (tk.countTokens() != 3) break;
@@ -91,11 +103,18 @@ public class JLISP {
                         }
                     }
                 }
+                lisp.start();
             } catch (FileNotFoundException e) {
                 System.err.println("config file not found");
                 System.exit(-1);
             } catch (IOException e) {
                 System.err.println("cannot read config file");
+                System.exit(-1);
+            } catch (ParserConfigurationException e) {
+                System.err.println("cannot pase cfg");
+                System.exit(-1);
+            } catch (SAXException e) {
+                System.err.println("cannot pase cfg");
                 System.exit(-1);
             }
         }
