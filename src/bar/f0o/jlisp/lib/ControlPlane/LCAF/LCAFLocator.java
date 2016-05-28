@@ -3,7 +3,7 @@
  * Andreas Stockmayer <stockmay@f0o.bar> and                                  *
  * Mark Schmidt <schmidtm@f0o.bar>                                            *
  *                                                                            *
- * This file (InputListenerRaw.java) is part of jlisp.                        *
+ * This file (LCAFLocator.java) is part of jlisp.                             *
  *                                                                            *
  * jlisp is free software: you can redistribute it and/or modify              *
  * it under the terms of the GNU General Public License as published by       *
@@ -19,45 +19,45 @@
  * along with $project.name.If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-package bar.f0o.jlisp.xTR;
+package bar.f0o.jlisp.lib.ControlPlane.LCAF;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.DatagramSocket;
 
-import bar.f0o.jlisp.lib.Net.CLibrary;
+import bar.f0o.jlisp.lib.ControlPlane.ControlMessage;
+import bar.f0o.jlisp.lib.ControlPlane.Locator;
+import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
 
-public class InputListenerRaw implements Runnable{
+public class LCAFLocator implements Locator {
 
-	private int fd;
-	private DatagramSocket sender;
-	
-	public  InputListenerRaw()  {
-		try{
-		this.sender = new DatagramSocket();
-		byte[] ifr = {108,105,115,112,48,0,0,0,0,0,0,0,0,0,0,0,1,16};
-		this.fd = CLibrary.INSTANCE.open("/dev/net/tun", 2);
-		Controller.setFd(fd);
-		CLibrary.INSTANCE.ioctl(fd,((long)0x400454ca), ifr);
-		Runtime.getRuntime().exec("ip a a "+Controller.getIP() +" dev lisp0");
-		Runtime.getRuntime().exec("ip l s dev lisp0 up");
-		Runtime.getRuntime().exec("ip l s dev lisp0 mtu 1300");
-		}catch(IOException e){
-			e.printStackTrace();
-		}
+	private int lcafType = 0;
+	private LCAFType type = null;
 
+	public LCAFLocator(DataInputStream stream) throws IOException {
+		// RSVD1
+		stream.readByte();
+		// FLG
+		stream.readByte();
+
+		this.lcafType = stream.readByte();
 	}
-	
-	
+
 	@Override
-	public void run() {
-		while(true){
-			byte[] incomming = new byte[Controller.getMTU()];
-			int length = CLibrary.INSTANCE.read(fd, incomming, incomming.length);
-			Controller.addSendWorker(new ITRWorker(sender,incomming,length));
-		}
+	public ControlMessage.AfiType getType() {
+		return ControlMessage.AfiType.LCAF;
 	}
 
-	public DatagramSocket getSender(){
-		return this.sender;
+	@Override
+	public byte[] toByteArray() throws IOException {
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		DataOutputStream stream = new DataOutputStream(byteStream);
+		stream.writeShort(16387);
+		stream.writeInt(0);
+		stream.writeByte(lcafType);
+		if (this.lcafType != 0)
+			stream.write(type.toByteArray());
+		return byteStream.toByteArray();
 	}
 }

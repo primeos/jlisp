@@ -163,7 +163,7 @@ public class Cache {
 					mappingCache.put(result, null);
 					return;
 				}
-				
+				//LCAF EXTRAIEREN
 				CacheEntry resultEntry = new CacheEntry();
 				for(Loc loc : record.getLocs()){
 					if(loc.getLocAFI()==ControlMessage.AfiType.IPv4)

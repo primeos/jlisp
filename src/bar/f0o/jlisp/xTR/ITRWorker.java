@@ -70,10 +70,10 @@ public class ITRWorker implements Runnable{
 		byte[] messageBytes = message.toByteArray();
 		try {
 
-			byte[] eid = Cache.getCache().getRLocForEid(packet.getDstIP());
+			byte[] rloc = Cache.getCache().getRLocForEid(packet.getDstIP());
 			//No mapping yet: drop the packet
-			if(eid == null) return;
-			DatagramPacket UDPPacket = new DatagramPacket(messageBytes, messageBytes.length,InetAddress.getByAddress(eid),4341);
+			if(rloc == null) return;
+			DatagramPacket UDPPacket = new DatagramPacket(messageBytes, messageBytes.length,InetAddress.getByAddress(rloc),4341);
 			sender.send(UDPPacket);
 		} catch (IOException e) {
 			e.printStackTrace();

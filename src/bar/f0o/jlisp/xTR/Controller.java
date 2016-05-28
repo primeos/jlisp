@@ -51,6 +51,10 @@ public class Controller {
 	
 	//Only v4 At the moment
 	private void register(){
+		registerAsXTR();
+	}
+	
+	private void registerAsXTR(){
 		ArrayList<Record> records = new ArrayList<>();
 		for(String prefix : Config.getEIDPrefix()){
 			ArrayList<Loc> locators = new ArrayList<>();
@@ -77,8 +81,6 @@ public class Controller {
 			sock.send(ligPacket);
 		}catch(Exception e){e.printStackTrace();};
 	}
-	
-	
 	
 	
 	//Save own nonces send with echo request to another RLOC
