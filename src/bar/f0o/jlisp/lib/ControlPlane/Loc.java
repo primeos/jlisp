@@ -22,6 +22,7 @@
 package bar.f0o.jlisp.lib.ControlPlane;
 
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
+import bar.f0o.jlisp.lib.ControlPlane.LCAF.LCAFLocator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;

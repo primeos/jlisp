@@ -21,11 +21,12 @@
 
 package bar.f0o.jlisp.lib.ControlPlane;
 
+import java.io.IOException;
 
 public interface Locator {
     public ControlMessage.AfiType getType();
 
-    public byte[] toByteArray();
+    public byte[] toByteArray() throws IOException;
 
     public String toString();
 }
