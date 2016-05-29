@@ -40,8 +40,57 @@ public class LCAFLocator implements Locator {
 		stream.readByte();
 		// FLG
 		stream.readByte();
-
 		this.lcafType = stream.readByte();
+		switch (lcafType) {
+		case 1:
+			type = new AfiList(stream);
+			break;
+		case 2:
+			type = new InstanceId(stream);
+			break;
+		case 3:
+			type = new ASNumber(stream);
+			break;
+		case 4:
+			type = new ApplicationData(stream);
+			break;
+		case 5:
+			type = new GeoCoordinates(stream);
+			break;
+		case 6:
+			type = new OpaqueKey(stream);
+			break;
+		case 7:
+			type = new NATTraversal(stream);
+			break;
+		case 8:
+			type = new NonceLocator(stream);
+			break;
+		case 9:
+			type = new Multicast(stream);
+			break;
+		case 10:
+			type = new ExplicitLocatorPath(stream);
+			break;
+		case 11:
+			type = new SecurityKey(stream);
+			break;
+		case 12:
+			type = new SourceDestKey(stream);
+			break;
+		case 13:
+			type = new ReplicationListEntry(stream);
+			break;
+		case 14:
+			type = new JSONDataModel(stream);
+			break;
+		case 15:
+			type = new KeyValueAddressPair(stream);
+			break;
+		case 16:
+			type = new EncapsulationFormat(stream);
+			break;
+		}
 	}
 
 	@Override
