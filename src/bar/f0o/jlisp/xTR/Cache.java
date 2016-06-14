@@ -23,6 +23,7 @@ package bar.f0o.jlisp.xTR;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -73,7 +74,7 @@ public class Cache {
 
 	}
 	
-	public synchronized byte[] getRLocForEid(byte[] eid){
+	public synchronized byte[] getRLocForEid(byte[] eid) throws IOException{
 		
 		int longestPrefix = 0;
 		CacheEntry mapping = null;
@@ -94,6 +95,12 @@ public class Cache {
 			return null;
 		}
 		lockedEids.remove(eid);
+		if(Config.isRTR()){
+			HashMap<String, Object> metadata = new HashMap<>();
+			metadata.put("ownRloc", Config.getOwnRloc());
+			return mapping.getLCAFRloc(metadata);
+		}
+		//More to do for LCAF
 		return Config.useV4()?mapping.getFirstV4Rloc():mapping.getFirstV6Rloc();
 	}
 
@@ -168,8 +175,11 @@ public class Cache {
 				for(Loc loc : record.getLocs()){
 					if(loc.getLocAFI()==ControlMessage.AfiType.IPv4)
 						resultEntry.addV4Rloc(loc);
-					else 
+					else if(loc.getLocAFI() == ControlMessage.AfiType.IPv6)
 						resultEntry.addV6Rloc(loc);
+					else
+						resultEntry.addLCAF(loc);
+				
 				}
 				mappingCache.put(result, resultEntry);
 			}

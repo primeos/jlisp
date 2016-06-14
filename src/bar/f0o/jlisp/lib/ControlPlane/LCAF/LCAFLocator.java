@@ -97,6 +97,10 @@ public class LCAFLocator implements Locator {
 	public ControlMessage.AfiType getType() {
 		return ControlMessage.AfiType.LCAF;
 	}
+	
+	public int getLCAFType(){
+		return this.lcafType;
+	}
 
 	@Override
 	public byte[] toByteArray() throws IOException {

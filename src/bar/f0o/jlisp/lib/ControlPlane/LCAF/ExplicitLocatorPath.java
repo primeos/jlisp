@@ -107,4 +107,31 @@ public class ExplicitLocatorPath implements LCAFType {
 		return byteStream.toByteArray();
 	}
 
+	public short getN() {
+		return n;
+	}
+
+	public ArrayList<Boolean> getlBits() {
+		return lBits;
+	}
+
+	public ArrayList<Boolean> getpBits() {
+		return pBits;
+	}
+
+	public ArrayList<Boolean> getsBits() {
+		return sBits;
+	}
+
+	public ArrayList<AfiType> getAfiTypes() {
+		return afiTypes;
+	}
+
+	public ArrayList<byte[]> getReencapHops() {
+		return reencapHops;
+	}
+	
+	
+	
+
 }
