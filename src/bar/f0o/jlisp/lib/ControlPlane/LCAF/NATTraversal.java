@@ -129,4 +129,50 @@ public class NATTraversal implements LCAFType {
 		return byteStream.toByteArray();
 	}
 
+	public short getLen() {
+		return len;
+	}
+
+	public short getMsUDPNum() {
+		return msUDPNum;
+	}
+
+	public short getEtrUDPNum() {
+		return etrUDPNum;
+	}
+
+	public AfiType getGerAfi() {
+		return gerAfi;
+	}
+
+	public short getGlobalETRRloc() {
+		return globalETRRloc;
+	}
+
+	public AfiType getMrAfi() {
+		return mrAfi;
+	}
+
+	public short getMsRLOC() {
+		return msRLOC;
+	}
+
+	public AfiType getPerAfi() {
+		return perAfi;
+	}
+
+	public short getPrivateETRRloc() {
+		return privateETRRloc;
+	}
+
+	public ArrayList<AfiType> getNtrRlocAfi() {
+		return ntrRlocAfi;
+	}
+
+	public ArrayList<byte[]> getNtrRloc() {
+		return ntrRloc;
+	}
+
+	
+	
 }

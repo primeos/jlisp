@@ -30,6 +30,7 @@ import bar.f0o.jlisp.lib.ControlPlane.Loc;
 import bar.f0o.jlisp.lib.ControlPlane.Locator;
 import bar.f0o.jlisp.lib.ControlPlane.LCAF.ExplicitLocatorPath;
 import bar.f0o.jlisp.lib.ControlPlane.LCAF.LCAFLocator;
+import bar.f0o.jlisp.lib.ControlPlane.LCAF.NATTraversal;
 
 public class CacheEntry {
 	
@@ -140,8 +141,10 @@ public class CacheEntry {
 			
 		switch(key){
 		case "ownRloc":
-			type = 1;
+			type = 10;
 			break;
+		case "ntrNr":
+			type= 7;
 		}
 		
 		
@@ -188,6 +191,10 @@ public class CacheEntry {
 		case 6:
 			break;
 		case 7:
+			NATTraversal ntr = (NATTraversal)(chosen);
+			Integer ntrNr = (Integer)metadata.get("ntrNr");
+			if(ntrNr < ntr.getNtrRloc().size())
+				return ntr.getNtrRloc().get(ntrNr);
 			break;
 		case 8:
 			break;
