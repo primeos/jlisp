@@ -20,7 +20,6 @@
  ******************************************************************************/
 package bar.f0o.jlisp.xTR;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -35,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -51,153 +51,165 @@ import bar.f0o.jlisp.lib.ControlPlane.Record;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
 
-
 public class Cache {
 
-	private  ConcurrentHashMap<EidPrefix,CacheEntry> mappings = new ConcurrentHashMap<EidPrefix,CacheEntry>();
+	private ConcurrentHashMap<EidPrefix, CacheEntry> mappings = new ConcurrentHashMap<EidPrefix, CacheEntry>();
 	private HashSet<byte[]> lockedEids = new HashSet<>();
-	
+
 	byte[] mappingSystemIP;
-	
+
 	private static Cache cache;
-	
-	public static Cache getCache(){
-		if(cache == null) cache = new Cache();
+
+	public static Cache getCache() {
+		if (cache == null)
+			cache = new Cache();
 		return cache;
 	}
-	
-	
-	
-	
-	private Cache(){
+
+	private Cache() {
 		this.mappingSystemIP = Config.getMS();
 
 	}
-	
-	public synchronized byte[] getRLocForEid(byte[] eid) throws IOException{
-		
+
+	public void parseRecords(ArrayList<Record> records) {
+		// Parse each record
+		for (Record record : records) {
+			EidPrefix result = new EidPrefix(record.getEidPrefix(), record.getEidMaskLen());
+
+			if (record.getLocatorCount() == 0) {
+				addEntry(result, null);
+				return;
+			}
+			// LCAF EXTRAIEREN
+			CacheEntry resultEntry = new CacheEntry();
+			for (Loc loc : record.getLocs()) {
+				if (loc.getLocAFI() == ControlMessage.AfiType.IPv4)
+					resultEntry.addV4Rloc(loc, record.getRecordTTL());
+				else if (loc.getLocAFI() == ControlMessage.AfiType.IPv6)
+					resultEntry.addV6Rloc(loc, record.getRecordTTL());
+				else
+					resultEntry.addLCAF(loc, record.getRecordTTL());
+
+			}
+			addEntry(result, null);
+		}
+	}
+
+	private void addEntry(EidPrefix prefix, CacheEntry entry) {
+		mappings.put(prefix, entry);
+	}
+
+	public synchronized byte[] getRLocForEid(byte[] eid) throws IOException {
+
 		int longestPrefix = 0;
 		CacheEntry mapping = null;
-		
-		for(EidPrefix pre : mappings.keySet()){
-			if(pre.match(eid) && pre.getPrefixLength() > longestPrefix)
-			{
+
+		for (EidPrefix pre : mappings.keySet()) {
+			if (pre.match(eid) && pre.getPrefixLength() > longestPrefix) {
 				mapping = mappings.get(pre);
 				longestPrefix = pre.getPrefixLength();
 			}
 		}
 
-		if(mapping == null ){
-			if(!lockedEids.contains(eid)){
-				new Thread(new MapRequester(mappingSystemIP, eid, mappings)).start();
+		if (mapping == null) {
+			if (!lockedEids.contains(eid)) {
+				startMapRequest(eid, (byte) 0);
 				lockedEids.add(eid);
 			}
 			return null;
 		}
 		lockedEids.remove(eid);
-		if(Config.isRTR()){
+		if (Config.isRTR()) {
 			HashMap<String, Object> metadata = new HashMap<>();
 			metadata.put("ownRloc", Config.getOwnRloc());
 			return mapping.getLCAFRloc(metadata);
 		}
-		//More to do for LCAF
-		return Config.useV4()?mapping.getFirstV4Rloc():mapping.getFirstV6Rloc();
+		// More to do for LCAF
+		return Config.useV4() ? mapping.getFirstV4Rloc() : mapping.getFirstV6Rloc();
 	}
 
+	public void startMapRequest(byte[] eid, byte smrStaus) {
+		new Thread(new MapRequester(mappingSystemIP, eid, mappings, (byte) 0)).start();
+	}
 
+	// Perform Map Request, no nonce yet
+	class MapRequester implements Runnable {
 
-
-	//Perform Map Request, no nonce yet
-	class MapRequester implements Runnable{
-		
 		byte[] eidRequest;
-		ConcurrentHashMap<EidPrefix,CacheEntry> mappingCache;
+		ConcurrentHashMap<EidPrefix, CacheEntry> mappingCache;
 		byte[] mappingSystemIP;
-		
-		public MapRequester(byte[] mappingSystemIP, byte[] eidRequest, ConcurrentHashMap<EidPrefix,CacheEntry> mappingCache){
+		// 0 - -
+		// 1 S -
+		// 2 - s
+		// 3 S s
+		byte smrStatus;
+
+		public MapRequester(byte[] mappingSystemIP, byte[] eidRequest,
+				ConcurrentHashMap<EidPrefix, CacheEntry> mappingCache, byte smrStatus) {
 			this.eidRequest = eidRequest;
 			this.mappingCache = mappingCache;
 			this.mappingSystemIP = mappingSystemIP;
+			this.smrStatus = smrStatus;
 		}
-		
-		
-		
+
 		@Override
 		public void run() {
-			
-			//Generate Message
-			Rec r = new Rec((byte)(eidRequest.length*8), eidRequest.length==4?ControlMessage.AfiType.IPv4:ControlMessage.AfiType.IPv6, this.eidRequest);
+
+			// Generate Message
+			Rec r = new Rec((byte) (eidRequest.length * 8),
+					eidRequest.length == 4 ? ControlMessage.AfiType.IPv4 : ControlMessage.AfiType.IPv6,
+					this.eidRequest);
 			ArrayList<Rec> recs = new ArrayList<Rec>();
 			recs.add(r);
-			HashMap<Short,byte[]> itrs = new HashMap<Short, byte[]>();
-			
+			HashMap<Short, byte[]> itrs = new HashMap<Short, byte[]>();
+
 			itrs.put((short) 1, Config.getOwnRloc()[0]);
-			
+
+			boolean SFlag = smrStatus % 2 == 1;
+			boolean sFlag = smrStatus > 0 && smrStatus % 2 == 0;
+
 			byte src[] = {};
-			MapRequest req = new MapRequest( false,false, false, false, false,false 
-					, new Random().nextLong(), 
-					AfiType.NONE, src,
-					itrs, recs, null);
-					
-			EncapsulatedControlMessage message = new EncapsulatedControlMessage(Config.getOwnRloc()[0],
-					eidRequest,(short)60573,(short)4342,req);	
-			
+			MapRequest req = new MapRequest(false, false, false, SFlag, false, sFlag, new Random().nextLong(),
+					AfiType.NONE, src, itrs, recs, null);
+
+			EncapsulatedControlMessage message = new EncapsulatedControlMessage(Config.getOwnRloc()[0], eidRequest,
+					(short) 60573, (short) 4342, req);
+
 			byte[] ligBytes = message.toByteArray();
-			
-			
-			//Send Message
+
+			// Send Message
 			DatagramSocket sock;
-			try{
-			DatagramPacket ligPacket = new DatagramPacket(ligBytes, ligBytes.length, InetAddress.getByAddress(Config.getMS()), 4342);
-			sock = new DatagramSocket(60573);
-			sock.send(ligPacket);
-			byte[] answer = new byte[Config.getMTU()];
-			DatagramPacket ligAnswer = new DatagramPacket(answer, answer.length);;
-			sock.receive(ligAnswer);
-			sock.close();
-			byte[] answerRightSize = new byte[ligAnswer.getLength()];
-			System.arraycopy(answer, 0, answerRightSize, 0, answerRightSize.length);
-			DataInputStream answerStream = new DataInputStream(new ByteArrayInputStream(answerRightSize));
+			try {
+				DatagramPacket ligPacket = new DatagramPacket(ligBytes, ligBytes.length,
+						InetAddress.getByAddress(Config.getMS()), 4342);
+				sock = new DatagramSocket(60573);
+				sock.send(ligPacket);
+				byte[] answer = new byte[Config.getMTU()];
+				DatagramPacket ligAnswer = new DatagramPacket(answer, answer.length);
+				;
+				sock.receive(ligAnswer);
+				sock.close();
+				byte[] answerRightSize = new byte[ligAnswer.getLength()];
+				System.arraycopy(answer, 0, answerRightSize, 0, answerRightSize.length);
+				DataInputStream answerStream = new DataInputStream(new ByteArrayInputStream(answerRightSize));
 
-			MapReply rep = new MapReply(answerStream);
-			ArrayList<Record> records = rep.getRecords();
+				MapReply rep = new MapReply(answerStream);
+				ArrayList<Record> records = rep.getRecords();
+				Cache.getCache().parseRecords(records);
 
-			//Parse each record
-			for(Record record : records){
-				EidPrefix result = new EidPrefix(record.getEidPrefix(), record.getEidMaskLen());
-
-				if(record.getLocatorCount() == 0){
-					mappingCache.put(result, null);
-					return;
-				}
-				//LCAF EXTRAIEREN
-				CacheEntry resultEntry = new CacheEntry();
-				for(Loc loc : record.getLocs()){
-					if(loc.getLocAFI()==ControlMessage.AfiType.IPv4)
-						resultEntry.addV4Rloc(loc);
-					else if(loc.getLocAFI() == ControlMessage.AfiType.IPv6)
-						resultEntry.addV6Rloc(loc);
-					else
-						resultEntry.addLCAF(loc);
-				
-				}
-				mappingCache.put(result, resultEntry);
-			}
-			
-			}
-			catch(Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}			
-			
 		}
-	
-	
-	
-	
-	
-	
-	
-	
+
+	}
+
+	public void garbateCollection() {
+		for(EidPrefix prefix : mappings.keySet()){
+			mappings.get(prefix).deleteExpired();
+			if(!mappings.get(prefix).entriesLeft())
+				mappings.remove(prefix);
+		}
+	}
 
 }

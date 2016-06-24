@@ -46,6 +46,8 @@ public class Controller {
 	public Controller() throws IOException{
 		new Thread(inputRaw).start();
 		new Thread(new InputListenerLISP()).start();
+		new Thread(new ControlListener()).start();
+		new Thread(new GarbageCollector()).start();
 	}
 	
 	

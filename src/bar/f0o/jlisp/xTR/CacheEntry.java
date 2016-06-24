@@ -34,24 +34,24 @@ import bar.f0o.jlisp.lib.ControlPlane.LCAF.NATTraversal;
 
 public class CacheEntry {
 	
-	private ArrayList<Loc> ipv4Rloc = new ArrayList<>();
-	private ArrayList<Loc> ipv6Rloc = new ArrayList<>();
-	private ArrayList<Loc> lcafRloc = new ArrayList<>();
+	private ArrayList<LocTTLContainer> ipv4Rloc = new ArrayList<>();
+	private ArrayList<LocTTLContainer> ipv6Rloc = new ArrayList<>();
+	private ArrayList<LocTTLContainer> lcafRloc = new ArrayList<>();
 	private static Random rand = new Random();
 	
 	
 	
-	public void addV4Rloc(Loc rloc){
-		ipv4Rloc.add(rloc);
+	public void addV4Rloc(Loc rloc, int ttl){
+		ipv4Rloc.add(new LocTTLContainer(rloc, (ttl*60*1000)+System.currentTimeMillis()));
 
 	}
 	
-	public void addV6Rloc(Loc rloc){
-		ipv6Rloc.add(rloc);
+	public void addV6Rloc(Loc rloc, int ttl){
+		ipv6Rloc.add(new LocTTLContainer(rloc, (ttl*60*1000)+System.currentTimeMillis()));
 	}
 	
-	public void addLCAF(Loc loc) {
-		lcafRloc.add(loc);
+	public void addLCAF(Loc rloc, int ttl) {
+		lcafRloc.add(new LocTTLContainer(rloc, (ttl*60*1000)+System.currentTimeMillis()));
 	}
 	
 	public byte[] getFirstV4Rloc() throws IOException{
@@ -60,7 +60,8 @@ public class CacheEntry {
 
 		int numOfLocs = 0;
 		int minPrio = 254;
-		for(Loc loc : ipv4Rloc){
+		for(LocTTLContainer locC : ipv4Rloc){
+			Loc loc = locC.getLocator();
 			if(loc.getPriority() < minPrio){
 				numOfLocs = 1;
 				minPrio = loc.getmPriority();
@@ -90,7 +91,8 @@ public class CacheEntry {
 		
 		int numOfLocs = 0;
 		int minPrio = 254;
-		for(Loc loc : ipv6Rloc){
+		for(LocTTLContainer locC : ipv6Rloc){
+			Loc loc = locC.getLocator();	
 			if(loc.getPriority() < minPrio){
 				numOfLocs = 1;
 				minPrio = loc.getmPriority();
@@ -148,8 +150,9 @@ public class CacheEntry {
 		}
 		
 		
-		for(Loc locator : lcafRloc){
-			if(((LCAFLocator)(locator.getLocator())).getLCAFType() == type)
+		for(LocTTLContainer loc : lcafRloc){
+			Loc locator = loc.getLocator();
+				if(((LCAFLocator)(locator.getLocator())).getLCAFType() == type)
 				possible.add(locator);
 		}
 
@@ -227,6 +230,26 @@ public class CacheEntry {
 	}	
 	
 
+	
+	public void deleteExpired(){
+		for(LocTTLContainer loc : ipv4Rloc){
+			if(loc.expired())
+				ipv4Rloc.remove(loc);
+		}
+		for(LocTTLContainer loc : ipv6Rloc){
+			if(loc.expired())
+				ipv6Rloc.remove(loc);
+		}
+		for(LocTTLContainer loc : lcafRloc){
+			if(loc.expired())
+				lcafRloc.remove(loc);
+		}
+
+	}
+	
+	public boolean entriesLeft(){
+		return ipv4Rloc.size()+ipv6Rloc.size()+lcafRloc.size() > 0;
+	}
 
 
 }
