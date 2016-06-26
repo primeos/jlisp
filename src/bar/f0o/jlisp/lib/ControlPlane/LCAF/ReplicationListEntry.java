@@ -97,4 +97,8 @@ public class ReplicationListEntry implements LCAFType {
 		}
 		return byteStream.toByteArray();
 	}
+	
+	public byte[] getRloc(){
+		return null;
+	}
 }

@@ -29,4 +29,6 @@ public interface Locator {
     public byte[] toByteArray() throws IOException;
 
     public String toString();
+    
+    public byte[] getRloc();
 }

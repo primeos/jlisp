@@ -174,5 +174,7 @@ public class NATTraversal implements LCAFType {
 	}
 
 	
-	
+	public byte[] getRloc(){
+		return null;
+	}
 }

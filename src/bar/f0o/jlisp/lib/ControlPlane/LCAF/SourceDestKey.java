@@ -97,5 +97,8 @@ public class SourceDestKey implements LCAFType {
 		stream.write(destinationPrefix);
 		return byteStream.toByteArray();
 	}
-
+	
+	public byte[] getRloc(){
+		return null;
+	}
 }

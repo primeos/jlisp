@@ -80,4 +80,7 @@ public class InstanceId implements LCAFType {
 		return byteStream.toByteArray();
 	}
 
+	public byte[] getRloc(){
+		return null;
+	}
 }

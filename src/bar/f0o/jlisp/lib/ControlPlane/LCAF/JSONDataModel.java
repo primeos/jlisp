@@ -85,4 +85,8 @@ public class JSONDataModel implements LCAFType {
 		stream.write(optionalAddress);
 		return byteStream.toByteArray();
 	}
+	
+	public byte[] getRloc(){
+		return null;
+	}
 }

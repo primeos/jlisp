@@ -113,4 +113,9 @@ public class LCAFLocator implements Locator {
 			stream.write(type.toByteArray());
 		return byteStream.toByteArray();
 	}
+	
+	//TODO: locator
+	public byte[] getRloc() {
+		return type.getRloc();
+	}
 }

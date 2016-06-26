@@ -105,5 +105,9 @@ public class SecurityKey implements LCAFType {
 		stream.write(locatorAddress);
 		return byteStream.toByteArray();
 	}
+	
+	public byte[] getRloc(){
+		return null;
+	}
 
 }

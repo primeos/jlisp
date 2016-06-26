@@ -44,7 +44,11 @@ public class MapWorker implements Runnable {
 
 
 	private void processRequest(MapRequest mapRequest) {
-		
+		//Site should response
+		if(mapRequest.isaFlag())
+		{
+			
+		}
 	}
 
 

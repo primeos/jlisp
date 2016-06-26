@@ -79,4 +79,8 @@ public class NonceLocator implements LCAFType {
 		stream.write(locator);
 		return byteStream.toByteArray();
 	}
+	
+	public byte[] getRloc(){
+		return null;
+	}
 }

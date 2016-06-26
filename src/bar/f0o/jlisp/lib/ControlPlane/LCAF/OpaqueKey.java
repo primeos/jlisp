@@ -77,4 +77,8 @@ public class OpaqueKey implements LCAFType {
 		stream.write(key);
 		return byteStream.toByteArray();
 	}
+	
+	public byte[] getRloc(){
+		return null;
+	}
 }

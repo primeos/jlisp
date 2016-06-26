@@ -131,6 +131,9 @@ public class ExplicitLocatorPath implements LCAFType {
 		return reencapHops;
 	}
 	
+	public byte[] getRloc(){
+		return null;
+	}
 	
 	
 

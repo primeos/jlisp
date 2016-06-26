@@ -118,4 +118,7 @@ public class GeoCoordinates implements LCAFType {
 		return byteStream.toByteArray();
 	}
 
+	public byte[] getRloc(){
+		return null;
+	}
 }

@@ -47,4 +47,9 @@ public class IPv6Locator implements Locator {
     public String toString() {
         return String.format("|%39s|\n", this.locator);
     }
+    
+    @Override
+	public byte[] getRloc() {
+		return locator;
+	}
 }

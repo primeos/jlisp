@@ -106,4 +106,8 @@ public class ApplicationData implements LCAFType {
 		stream.write(locator);
 		return byteStream.toByteArray();
 	}
+	
+	public byte[] getRloc(){
+		return null;
+	}
 }

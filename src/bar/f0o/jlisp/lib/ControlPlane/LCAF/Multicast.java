@@ -104,4 +104,7 @@ public class Multicast implements LCAFType {
 		return byteStream.toByteArray();
 	}
 
+	public byte[] getRloc(){
+		return null;
+	}
 }

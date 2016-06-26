@@ -49,4 +49,9 @@ public class IPv4Locator implements Locator {
     public String toString() {
         return String.format("|%15s|\n", this.locator);
     }
+
+	@Override
+	public byte[] getRloc() {
+		return locator;
+	}
 }

@@ -101,4 +101,7 @@ public class EncapsulationFormat implements LCAFType {
 		return byteStream.toByteArray();
 	}
 
+	public byte[] getRloc(){
+		return null;
+	}
 }
