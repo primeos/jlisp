@@ -29,22 +29,21 @@ public class Mappings {
 		}
 	}
 	
-	public MapReply getReply(byte[] eid,long nonce){
-		EidPrefix pre = getMatch(eid);
-		if(pre == null)
-			return negativeMapReply(eid,nonce);
-		MapReply reply = new MapReply(true,false,false,nonce,mappings.get(pre).getRecordsForEID());
+	public MapReply getReply(ArrayList<byte[]> eids,long nonce){
+		ArrayList<Record> records = new ArrayList<>();
+		for(byte[] eid : eids){
+			EidPrefix pre = getMatch(eid);
+			if(pre == null){
+				records.add(new Record(0, (byte)0, (byte)0, false,(short) 1, ((eid.length==4)?AfiType.IPv4:AfiType.IPv6), eid,new ArrayList<>()));
+			}
+			else
+				records.addAll(mappings.get(pre).getRecordsForEID());
+		}
+
+		MapReply reply = new MapReply(true,false,false,nonce,records);
 		return reply;
 	}
 	
-	private MapReply negativeMapReply(byte[] eid, long nonce) {
-		ArrayList<Loc> locs = new ArrayList<>();
-		Record rec = new Record(0, (byte)0, (byte)0, false,(short) 0, ((eid.length==4)?AfiType.IPv4:AfiType.IPv6), eid,locs);
-		ArrayList<Record> records = new ArrayList<>();
-		records.add(rec);
-		MapReply reply = new MapReply(true, false, false, nonce, records);
-		return reply;
-	}
 
 	//Rloc if proxy byte, null otherwise
 	public byte[] getProxy(byte[] eid){
@@ -58,7 +57,7 @@ public class Mappings {
 		EidPrefix mapping = null;
 
 		for (EidPrefix pre : mappings.keySet()) {
-			if (pre.match(eid) && pre.getPrefixLength() > longestPrefix) {
+			if (pre.match(eid) && pre.getPrefixLength() >= longestPrefix) {
 				mapping = pre;
 				longestPrefix = pre.getPrefixLength();
 			}
@@ -75,6 +74,8 @@ public class Mappings {
 		}
 		return null;
 	}
+	
+	
 }
 
 

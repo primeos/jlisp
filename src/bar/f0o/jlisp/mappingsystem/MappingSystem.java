@@ -13,6 +13,8 @@ public class MappingSystem {
 	private static DatagramSocket socket;
 	//Threadpool
 	private static ExecutorService pool = Executors.newFixedThreadPool(50);
+	private static Mappings mappings = new Mappings();
+	
 	
 	
 	
@@ -35,6 +37,10 @@ public class MappingSystem {
 	
 	public static void sendPacket(DatagramPacket p) throws IOException{
 		socket.send(p);
+	}
+	
+	public static Mappings getMappings(){
+		return mappings;
 	}
 	
 }

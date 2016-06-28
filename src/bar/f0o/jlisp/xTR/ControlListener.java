@@ -67,6 +67,9 @@ public class ControlListener implements Runnable {
 				if (message instanceof MapRequest) {
 					answerMapRequest((MapRequest) message);
 				}
+				else if(message instanceof MapReply){
+					Cache.getCache().parseRecords(((MapReply)message).getRecords());
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
