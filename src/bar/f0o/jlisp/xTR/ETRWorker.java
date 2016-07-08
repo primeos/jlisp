@@ -58,6 +58,8 @@ public class ETRWorker implements Runnable {
 		System.arraycopy(received.getData(), 0, rec,0, rec.length);
 		//Parsing Received bytes
 		DataMessage message = new DataMessage(rec);		
+		//Plugins
+		PluginController.receiveLispData(message);
 		//Extracting IP Packet from LISP Message
 		IPPacket innerIP = message.getPayload();
 		byte[] otherRloc = received.getAddress().getAddress();
@@ -86,6 +88,7 @@ public class ETRWorker implements Runnable {
 		
 		//Sending inner IP Packet to the tun device
 		byte[] toSend = innerIP.toByteArray();
+		PluginController.receiveRawData(toSend);
 		if(Config.isRTR()){
 			Controller.addSendWorker(new ITRWorker(Controller.getLispSender(),toSend,toSend.length));
 		}

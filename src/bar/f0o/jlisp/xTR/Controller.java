@@ -74,6 +74,7 @@ public class Controller {
 			records.add(r);
 		}
 		MapRegister reg = new MapRegister(true, true, 1234, HmacType.HMAC_SHA_1_96, "lisp1-pw".getBytes(), records);
+		PluginController.sendControlMessage(reg);
 		byte[] message = reg.toByteArray();
 		//Send Message
 		DatagramSocket sock;

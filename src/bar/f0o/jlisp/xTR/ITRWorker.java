@@ -63,10 +63,12 @@ public class ITRWorker implements Runnable{
 	public void run() {
 		byte[] dataTrimmed = new byte[this.length];
 		System.arraycopy(data, 0, dataTrimmed,0, this.length);
+		PluginController.sendRawData(dataTrimmed);
 		IPPacket packet = IPPacket.fromByteArray(dataTrimmed);
 		
 		
 		DataMessage message = new DataMessage(true, false, false, false, false, 0, 0, packet);
+		PluginController.sendLispData(message);
 		byte[] messageBytes = message.toByteArray();
 		try {
 

@@ -58,12 +58,12 @@ public class ControlListener implements Runnable {
 				DatagramPacket p = new DatagramPacket(buf, buf.length);
 				sock.receive(p);
 				byte[] packet = new byte[p.getLength()];
-				System.arraycopy(p, 0, packet, 0, packet.length);
-
+				System.arraycopy(p.getData(), 0, packet, 0, packet.length);
+				
 				DataInputStream stream = new DataInputStream(new ByteArrayInputStream(packet));
 
 				ControlMessage message = ControlMessage.fromStream(stream);
-
+				PluginController.receiveControlMessage(message);
 				if (message instanceof MapRequest) {
 					answerMapRequest((MapRequest) message);
 				}
@@ -92,8 +92,10 @@ public class ControlListener implements Runnable {
 
 		//Only v4 at the moment
 		
-		byte[] rep = new MapReply(message.ispFlag(), true, false, message.getNonce(), this.mapRequestAnswer).toByteArray();
-		DatagramPacket packet = new DatagramPacket(rep, rep.length);
+		MapReply rep = new MapReply(message.ispFlag(), true, false, message.getNonce(), this.mapRequestAnswer);
+		PluginController.sendControlMessage(rep);
+		byte[] repB = rep.toByteArray();
+		DatagramPacket packet = new DatagramPacket(repB, repB.length);
 		try{
 		packet.setAddress(InetAddress.getByAddress(answerTo.get(1)) );
 		packet.setPort(4341);
