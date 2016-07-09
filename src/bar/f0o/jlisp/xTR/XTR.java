@@ -54,8 +54,8 @@ public class XTR extends LISPComponent {
 		ArrayList<Record> records = new ArrayList<>();
 		for(String prefix : JLISP.getConfig().getEIDs()){
 			ArrayList<Loc> locators = new ArrayList<>();
-			for(byte[] loc : JLISP.getConfig().getOwnRloc()){
-				Loc l = new Loc((byte)1,(byte)1,(byte)1,(byte)1,true,false,false,AfiType.IPv4,new IPv4Locator(loc));
+			for(Config.Rloc rloc : JLISP.getConfig().getRlocs()){
+				Loc l = new Loc((byte)rloc.getPrio(),(byte)rloc.getWeight(),(byte)rloc.getPrio(),(byte)rloc.getWeight(),true,false,false,AfiType.IPv4,new IPv4Locator(rloc.getAddress()));
 				locators.add(l);
 			}
 			String[] eidPrefix = prefix.split("/");
@@ -67,12 +67,12 @@ public class XTR extends LISPComponent {
 			Record r = new Record((byte)1,Byte.valueOf(eidPrefix[1]),(byte)0,false,(short)1,AfiType.IPv4,eid,locators);
 			records.add(r);
 		}
-		MapRegister reg = new MapRegister(true, true, 1234, HmacType.HMAC_SHA_1_96, "lisp1-pw".getBytes(), records);
+		MapRegister reg = new MapRegister(true, true, 1234, HmacType.HMAC_SHA_1_96, JLISP.getConfig().getMSPasswd().getBytes(), records);
 		byte[] message = reg.toByteArray();
 		//Send Message
 		DatagramSocket sock;
 		try{
-			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(Config.getMS()), 4342);
+			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(JLISP.getConfig().getMS()), 4342);
 			sock = new DatagramSocket(60574);
 			sock.send(ligPacket);
 		}catch(Exception e){e.printStackTrace();};
@@ -103,6 +103,8 @@ public class XTR extends LISPComponent {
 	//Check if Other RLocs Version > saved one
 	public static void checkSourceVersionNumber(short srcVersionNumber,byte[] otherRloc) {
 		//If other RLOCs Version > then Map Request
+		
+		
 	}
 
 	//Check if own number > parameter

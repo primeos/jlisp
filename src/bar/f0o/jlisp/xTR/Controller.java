@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
+import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.ControlPlane.IPv4Locator;
 import bar.f0o.jlisp.lib.ControlPlane.Loc;
 import bar.f0o.jlisp.lib.ControlPlane.MapRegister;
@@ -56,12 +57,14 @@ public class Controller {
 		registerAsXTR();
 	}
 	
+
+	//Only v4 At the moment
 	private void registerAsXTR(){
 		ArrayList<Record> records = new ArrayList<>();
-		for(String prefix : Config.getEIDPrefix()){
+		for(String prefix : JLISP.getConfig().getEIDs()){
 			ArrayList<Loc> locators = new ArrayList<>();
-			for(byte[] loc : Config.getOwnRloc()){
-				Loc l = new Loc((byte)1,(byte)1,(byte)1,(byte)1,true,false,false,AfiType.IPv4,new IPv4Locator(loc));
+			for(Config.Rloc rloc : JLISP.getConfig().getRlocs()){
+				Loc l = new Loc((byte)rloc.getPrio(),(byte)rloc.getWeight(),(byte)rloc.getPrio(),(byte)rloc.getWeight(),true,false,false,AfiType.IPv4,new IPv4Locator(rloc.getAddress()));
 				locators.add(l);
 			}
 			String[] eidPrefix = prefix.split("/");
@@ -73,13 +76,12 @@ public class Controller {
 			Record r = new Record((byte)1,Byte.valueOf(eidPrefix[1]),(byte)0,false,(short)1,AfiType.IPv4,eid,locators);
 			records.add(r);
 		}
-		MapRegister reg = new MapRegister(true, true, 1234, HmacType.HMAC_SHA_1_96, "lisp1-pw".getBytes(), records);
-		PluginController.sendControlMessage(reg);
+		MapRegister reg = new MapRegister(true, true, 1234, HmacType.HMAC_SHA_1_96, JLISP.getConfig().getMSPasswd().getBytes(), records);
 		byte[] message = reg.toByteArray();
 		//Send Message
 		DatagramSocket sock;
 		try{
-			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(Config.getMS()), 4342);
+			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(JLISP.getConfig().getMS()), 4342);
 			sock = new DatagramSocket(60574);
 			sock.send(ligPacket);
 		}catch(Exception e){e.printStackTrace();};
