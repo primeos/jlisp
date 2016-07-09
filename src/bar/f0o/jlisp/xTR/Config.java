@@ -75,24 +75,40 @@ public class Config {
 
     }
 
-	public static byte[] getMS(){
+	public byte[] getMS(){
 		byte[] ms = {(byte)134,2,11,(byte)173};
-		return ms;
+        try{
+            Element n = (Element) config.getElementsByTagName("ms").item(0);
+            ms = n.getAttribute("address").getBytes();
+        } catch (Exception e){}
+        return ms;
 	}
-	
-	public static int getMTU() {
+
+    public String getMSPasswd(){
+        String passwd = "";
+        try{
+            Element n = (Element) config.getElementsByTagName("ms").item(0);
+            passwd = n.getAttribute("passwd");
+        } catch (Exception e){}
+        return passwd;
+    }
+
+	public int getMTU() {
 		return 1500;
 	}
 
-	public static String[] getEIDPrefix() {
-
-		String [] eids = {"10.0.0.1/24"};
-		return eids;
-	}
-
-	public static byte[][] getOwnRloc() {
-		byte[][] rloc = {{(byte) 134,2,11,(byte)132}};
-		return rloc;
+	public Rloc[] getRlocs() {
+        Rloc[] rlocs = {new Rloc("127.0.0.1", "1", "225")};
+        try{
+            Node n = config.getElementsByTagName("rlocs").item(0);
+            int c = n.getChildNodes().getLength();
+            rlocs = new Rloc[c];
+            for(int i = 0; i < c; i++){
+                Element rloc = ((Element)n.getChildNodes().item(i));
+                rlocs[i] = new Rloc(rloc.getAttribute("address"), rloc.getAttribute("prio"), rloc.getAttribute("weight"));
+            }
+        } catch (Exception e){}
+        return rlocs;
 	}
 
 	public static boolean useV4() {
@@ -102,4 +118,28 @@ public class Config {
 	public static boolean isRTR(){
 		return false;
 	}
+
+    class Rloc {
+        private byte[] address;
+        private int prio;
+        private int weight;
+
+        public Rloc(String address, String prio, String weight) {
+            this.address = address.getBytes();
+            this.prio = Integer.parseInt(prio);
+            this.weight = Integer.parseInt(weight);
+        }
+
+        public byte[] getAddress() {
+            return this.address;
+        }
+
+        public int getPrio() {
+            return this.prio;
+        }
+
+        public int getWeight() {
+            return this.weight;
+        }
+    }
 }

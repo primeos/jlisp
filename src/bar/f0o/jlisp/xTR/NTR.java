@@ -107,11 +107,11 @@ public class NTR extends LISPComponent {
 		//if own number > srcVersionNumber  SMR
 	}
 		
-	public static void addSendWorker(Runnable worker){
+	public void addSendWorker(Runnable worker){
 		poolSend.execute(worker);
 	}
 	
-	public static void addReceiveWorker(Runnable worker){
+	public void addReceiveWorker(Runnable worker){
 		poolReceive.execute(worker);
 	}
 

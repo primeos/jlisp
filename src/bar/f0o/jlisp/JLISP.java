@@ -62,7 +62,7 @@ public class JLISP {
                 LISPComponent lisp = null;
                 switch (component) {
                     case JLISP.MS:
-                        lisp = new MS();
+                        //TODO lisp = new MS();
                         break;
                     case JLISP.XTR:
                         lisp = new XTR();
