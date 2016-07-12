@@ -58,12 +58,9 @@ public class InputListenerRaw implements Runnable{
 	public void run() {
 		while(true){
 			byte[] incomming = new byte[Controller.getMTU()];
-			try{
-			//	int length = CLibrary.INSTANCE.read(fd, incomming, incomming.length);
-			}catch (LastErrorException ex) {
-				System.out.println(ex);
-			}
-			//Controller.addSendWorker(new ITRWorker(sender,incomming,length));
+			int length = CLibrary.INSTANCE.read(fd, incomming, incomming.length);
+			Controller.addSendWorker(new ITRWorker(sender,incomming,length));
+			System.out.println("received");
 		}
 	}
 

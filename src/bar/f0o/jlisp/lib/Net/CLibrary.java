@@ -32,7 +32,7 @@ public interface CLibrary extends Library {
 	void printf(String format, Object... args);
 	int ioctl(int fd, long request, Object ... args) throws LastErrorException;
 	int open(String path, int oflags) throws LastErrorException;
-	int  read(  int  handle,  byte[] buffer,  int  nbyte ) throws LastErrorException;
+	int  read(  int  handle,  byte[] buffer,  int  nbyte );
 	int  write(  int  handle,  byte[] buffer,  int  nbyte  );
 	int  close(int  handle);
 	
