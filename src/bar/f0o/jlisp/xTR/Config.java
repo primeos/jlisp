@@ -32,6 +32,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class Config {
     private org.w3c.dom.Document config;
@@ -56,7 +58,7 @@ public class Config {
     public String[] getEIDs(){
         String[] eids = {"127.0.0.1/8"};
         try{
-            Node n = config.getElementsByTagName("eids").item(0);
+            Node n = config.getElementsByTagName("jlisp/eids").item(0);
             int c = n.getChildNodes().getLength();
             eids = new String[c];
             for(int i = 0; i < c; i++){
@@ -79,7 +81,7 @@ public class Config {
 		byte[] ms = {(byte)134,2,11,(byte)173};
         try{
             Element n = (Element) config.getElementsByTagName("ms").item(0);
-            ms = n.getAttribute("address").getBytes();
+            ms = InetAddress.getByName(n.getAttribute("address")).getAddress();
         } catch (Exception e){}
         return ms;
 	}
@@ -100,7 +102,7 @@ public class Config {
 	public Rloc[] getRlocs() {
         Rloc[] rlocs = {new Rloc("127.0.0.1", "1", "225")};
         try{
-            Node n = config.getElementsByTagName("rlocs").item(0);
+            Node n = config.getElementsByTagName("jlisp/rlocs").item(0);
             int c = n.getChildNodes().getLength();
             rlocs = new Rloc[c];
             for(int i = 0; i < c; i++){
@@ -125,7 +127,11 @@ public class Config {
         private int weight;
 
         public Rloc(String address, String prio, String weight) {
-            this.address = address.getBytes();
+            try {
+				this.address = InetAddress.getByName(address).getAddress();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
             this.prio = Integer.parseInt(prio);
             this.weight = Integer.parseInt(weight);
         }

@@ -34,7 +34,7 @@ public class Mappings {
 		for(byte[] eid : eids){
 			EidPrefix pre = getMatch(eid);
 			if(pre == null){
-				records.add(new Record(0, (byte)0, (byte)0, false,(short) 1, ((eid.length==4)?AfiType.IPv4:AfiType.IPv6), eid,new ArrayList<>()));
+				records.add(new Record(0, (byte)0, (byte)0, false, (short) 1, ((eid.length==4)?AfiType.IPv4:AfiType.IPv6), eid,new ArrayList<Loc>()));
 			}
 			else
 				records.addAll(mappings.get(pre).getRecordsForEID());

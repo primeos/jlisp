@@ -21,6 +21,7 @@
 
 package bar.f0o.jlisp.lib.Net;
 
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
@@ -29,10 +30,12 @@ public interface CLibrary extends Library {
 	CLibrary INSTANCE = (CLibrary) Native.loadLibrary((Platform.isWindows() ? "msvcrt" : "c"), CLibrary.class);
 
 	void printf(String format, Object... args);
-	int ioctl(int fd, long request, Object ... args);
-	int open(String path, int oflags);
-	int  read(  int  handle,  byte[] buffer,  int  nbyte );
+	int ioctl(int fd, long request, Object ... args) throws LastErrorException;
+	int open(String path, int oflags) throws LastErrorException;
+	int  read(  int  handle,  byte[] buffer,  int  nbyte ) throws LastErrorException;
 	int  write(  int  handle,  byte[] buffer,  int  nbyte  );
 	int  close(int  handle);
+	
 
 }
+

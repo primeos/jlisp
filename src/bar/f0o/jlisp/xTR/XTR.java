@@ -55,6 +55,7 @@ public class XTR extends LISPComponent {
 		for(String prefix : JLISP.getConfig().getEIDs()){
 			ArrayList<Loc> locators = new ArrayList<>();
 			for(Config.Rloc rloc : JLISP.getConfig().getRlocs()){
+				System.out.println(rloc);
 				Loc l = new Loc((byte)rloc.getPrio(),(byte)rloc.getWeight(),(byte)rloc.getPrio(),(byte)rloc.getWeight(),true,false,false,AfiType.IPv4,new IPv4Locator(rloc.getAddress()));
 				locators.add(l);
 			}

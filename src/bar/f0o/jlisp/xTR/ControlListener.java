@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
 import bar.f0o.jlisp.lib.ControlPlane.IPv4Locator;
@@ -28,21 +29,21 @@ public class ControlListener implements Runnable {
 		//EID Count atm 1
 		mapRequestAnswer = new ArrayList<>();
 		for(int i=0; i<1;i++){
-			byte prefixLength = Byte.parseByte(Config.getEIDPrefix()[i].split("/")[1].trim());
-			String eid = Config.getEIDPrefix()[i].split("/")[0].trim();
+			byte prefixLength = Byte.parseByte(JLISP.getConfig().getEIDs()[i].split("/")[1].trim());
+			String eid = JLISP.getConfig().getEIDs()[i].split("/")[0].trim();
 			byte[] eidPrefix =  new byte[4];
 			for(int j=0;j<4;j++) eidPrefix[j] = Byte.parseByte(eid.split("\\.")[j]);
 			
 			ArrayList<Loc> locs = new ArrayList<>();
-			for(int j=0;j<Config.getOwnRloc().length;j++){
+			for(int j=0;j<JLISP.getConfig().getRlocs().length;j++){
 				//Priority, Weight
 				byte prio=1;
 				byte weight=100;
-				Loc locator = new Loc(prio, weight, prio, weight, true, false, true, AfiType.IPv4, new IPv4Locator(Config.getOwnRloc()[j]));
+				Loc locator = new Loc(prio, weight, prio, weight, true, false, true, AfiType.IPv4, new IPv4Locator(JLISP.getConfig().getRlocs()[j].getAddress()));
 				locs.add(locator);
 			}
 			
-			Record r = new Record(3600, prefixLength, (byte)0, true, (byte)1, AfiType.IPv4, eidPrefix, locs);
+			Record r = new Record(3600,prefixLength, (byte)0, true, (byte)1, AfiType.IPv4, eidPrefix, locs);
 					
 					
 			mapRequestAnswer.add(r);
@@ -77,8 +78,6 @@ public class ControlListener implements Runnable {
 	}
 
 	private void answerMapRequest(MapRequest message) {
-		Map<Short, byte[]> replyTo = message.getItrRlocPairs();
-		byte[][] send = Config.getOwnRloc();
 
 		if (message.ismFlag()) {
 			ArrayList<Record> records = message.getReply().getRecords();

@@ -48,6 +48,7 @@ import bar.f0o.jlisp.lib.ControlPlane.MapReply;
 import bar.f0o.jlisp.lib.ControlPlane.MapRequest;
 import bar.f0o.jlisp.lib.ControlPlane.Rec;
 import bar.f0o.jlisp.lib.ControlPlane.Record;
+import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
 
@@ -67,7 +68,7 @@ public class Cache {
 	}
 
 	private Cache() {
-		this.mappingSystemIP = Config.getMS();
+		this.mappingSystemIP = JLISP.getConfig().getMS();
 
 	}
 
@@ -119,13 +120,13 @@ public class Cache {
 			return null;
 		}
 		lockedEids.remove(eid);
-		if (Config.isRTR()) {
+		if (JLISP.getConfig().isRTR()) {
 			HashMap<String, Object> metadata = new HashMap<>();
-			metadata.put("ownRloc", Config.getOwnRloc());
+			metadata.put("ownRloc", JLISP.getConfig().getRlocs()[0].getAddress());
 			return mapping.getLCAFRloc(metadata);
 		}
 		// More to do for LCAF
-		return Config.useV4() ? mapping.getFirstV4Rloc() : mapping.getFirstV6Rloc();
+		return JLISP.getConfig().useV4() ? mapping.getFirstV4Rloc() : mapping.getFirstV6Rloc();
 	}
 
 	public void startMapRequest(byte[] eid, byte smrStaus) {
@@ -163,7 +164,7 @@ public class Cache {
 			recs.add(r);
 			HashMap<Short, byte[]> itrs = new HashMap<Short, byte[]>();
 
-			itrs.put((short) 1, Config.getOwnRloc()[0]);
+			itrs.put((short) 1, JLISP.getConfig().getRlocs()[0].getAddress());
 
 			boolean SFlag = smrStatus % 2 == 1;
 			boolean sFlag = smrStatus > 0 && smrStatus % 2 == 0;
@@ -172,7 +173,7 @@ public class Cache {
 			MapRequest req = new MapRequest(false, false, false, SFlag, false, sFlag, new Random().nextLong(),
 					AfiType.NONE, src, itrs, recs, null);
 
-			EncapsulatedControlMessage message = new EncapsulatedControlMessage(Config.getOwnRloc()[0], eidRequest,
+			EncapsulatedControlMessage message = new EncapsulatedControlMessage(JLISP.getConfig().getRlocs()[0].getAddress(), eidRequest,
 					(short) 60573, (short) 4342, req);
 
 			byte[] ligBytes = message.toByteArray();
@@ -181,10 +182,10 @@ public class Cache {
 			DatagramSocket sock;
 			try {
 				DatagramPacket ligPacket = new DatagramPacket(ligBytes, ligBytes.length,
-						InetAddress.getByAddress(Config.getMS()), 4342);
+						InetAddress.getByAddress(JLISP.getConfig().getMS()), 4342);
 				sock = new DatagramSocket(60573);
 				sock.send(ligPacket);
-				byte[] answer = new byte[Config.getMTU()];
+				byte[] answer = new byte[JLISP.getConfig().getMTU()];
 				DatagramPacket ligAnswer = new DatagramPacket(answer, answer.length);
 				;
 				sock.receive(ligAnswer);
