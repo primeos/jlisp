@@ -55,7 +55,7 @@ public class ControlListener implements Runnable {
 		try {
 			sock = new DatagramSocket(4341);
 			while (true) {
-				byte[] buf = new byte[Controller.getMTU()];
+				byte[] buf = new byte[XTR.getMTU()];
 				DatagramPacket p = new DatagramPacket(buf, buf.length);
 				sock.receive(p);
 				byte[] packet = new byte[p.getLength()];

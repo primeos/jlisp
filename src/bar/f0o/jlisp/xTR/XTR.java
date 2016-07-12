@@ -33,20 +33,24 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class XTR extends LISPComponent {
 
+	private static XTR xtr;
 
-	public XTR() throws IOException{
-		new Thread(inputRaw).start();
-		new Thread(new InputListenerLISP()).start();
+	public XTR(){
+
 	}
 	
-	public void start(){
+	public void start() throws SocketException{
+		new Thread(inputRaw).start();
+		new Thread(new InputListenerLISP()).start();
 		this.register();
+		xtr = this;
 	}
 
 	//Only v4 At the moment
@@ -142,5 +146,9 @@ public class XTR extends LISPComponent {
 		return inputRaw.getSender();
 	}
 	
+	
+	public static XTR getXTR(){
+		return xtr;
+	}
 	
 }

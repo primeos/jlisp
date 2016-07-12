@@ -43,7 +43,7 @@ public abstract class LISPComponent {
 	protected static int fd;
 	protected static InputListenerRaw inputRaw = new InputListenerRaw();
 
-	public abstract void start();
+	public abstract void start() throws IOException;
 	
 	//Save own nonces send with echo request to another RLOC
 	public static synchronized void saveNonceToRloc(byte[] rloc, long nonce){

@@ -70,18 +70,18 @@ public class ETRWorker implements Runnable {
 			//If e bit is set, the nonce has to be saved in order to send it back with the next packet
 			//otherwise it is a reply to an echo request and has to be compared to the stored value
 			if(message.iseBit()){
-				Controller.saveNonceFromRloc(otherRloc, message.getNonce());
+				XTR.saveNonceFromRloc(otherRloc, message.getNonce());
 			}
 			else{
-				long nonceOld = Controller.getNonceEchoToRloc(otherRloc);
+				long nonceOld = XTR.getNonceEchoToRloc(otherRloc);
 				if(nonceOld != message.getNonce()) throw new RuntimeException("Wrong nonce echoed");
 			}
 		}else if(message.isvBit()){
 			//Map Version checking if v bit is set
 			short srcVersionNumber = (short) (message.getNonce() >> 16);
 			short dstVersionNumber = (short) (message.getNonce()&0xFFFF);
-			Controller.checkSourceVersionNumber(srcVersionNumber,otherRloc);
-			Controller.checkDestinationVersionNumber(dstVersionNumber,otherRloc);
+			XTR.checkSourceVersionNumber(srcVersionNumber,otherRloc);
+			XTR.checkDestinationVersionNumber(dstVersionNumber,otherRloc);
 		}
 		
 		
@@ -90,10 +90,10 @@ public class ETRWorker implements Runnable {
 		byte[] toSend = innerIP.toByteArray();
 		PluginController.receiveRawData(toSend);
 		if(Config.isRTR()){
-			Controller.addSendWorker(new ITRWorker(Controller.getLispSender(),toSend,toSend.length));
+			XTR.getXTR().addSendWorker(new ITRWorker(XTR.getLispSender(),toSend,toSend.length));
 		}
 		else{
-			CLibrary.INSTANCE.write(Controller.getFd(), toSend, toSend.length);
+			CLibrary.INSTANCE.write(XTR.getFd(), toSend, toSend.length);
 		}
 	}
 
