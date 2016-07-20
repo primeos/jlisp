@@ -24,6 +24,8 @@ package bar.f0o.jlisp.xTR;
 import java.io.IOException;
 import java.net.DatagramSocket;
 
+import com.sun.jna.LastErrorException;
+
 import bar.f0o.jlisp.lib.Net.CLibrary;
 
 public class InputListenerRaw implements Runnable{
@@ -35,10 +37,16 @@ public class InputListenerRaw implements Runnable{
 		try{
 		this.sender = new DatagramSocket();
 		byte[] ifr = {108,105,115,112,48,0,0,0,0,0,0,0,0,0,0,0,1,16};
+		//0x7f fe 43 b3 7a e0
+		//byte[] ifr = {(byte)0x7f,(byte)0xfe,(byte)0x43,(byte)0xb3,(byte)0x7a,(byte)0xe0};
+		try{
 		this.fd = CLibrary.INSTANCE.open("/dev/net/tun", 2);
-		Controller.setFd(fd);
+		XTR.setFd(fd);
 		CLibrary.INSTANCE.ioctl(fd,((long)0x400454ca), ifr);
-		Runtime.getRuntime().exec("ip a a "+Controller.getIP() +" dev lisp0");
+		}catch(LastErrorException ex){
+			System.out.println(ex);
+		}
+		Runtime.getRuntime().exec("ip a a "+XTR.getIP() +" dev lisp0");
 		Runtime.getRuntime().exec("ip l s dev lisp0 up");
 		Runtime.getRuntime().exec("ip l s dev lisp0 mtu 1300");
 		}catch(IOException e){
@@ -51,9 +59,9 @@ public class InputListenerRaw implements Runnable{
 	@Override
 	public void run() {
 		while(true){
-			byte[] incomming = new byte[Controller.getMTU()];
+			byte[] incomming = new byte[XTR.getMTU()];
 			int length = CLibrary.INSTANCE.read(fd, incomming, incomming.length);
-			Controller.addSendWorker(new ITRWorker(sender,incomming,length));
+			XTR.getXTR().addSendWorker(new ITRWorker(sender,incomming,length));
 		}
 	}
 

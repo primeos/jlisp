@@ -75,21 +75,21 @@ public class JLISP {
                     case JLISP.XTR:
                         lisp = new XTR();
                         break;
-                    case JLISP.RTR:
-                        lisp = new RTR();
-                        break;
-                    case JLISP.PXTR:
-                        lisp = new PXTR();
-                        break;
-                    case JLISP.NTR:
-                        lisp = new NTR();
-                        break;
-                    case JLISP.HAXTR:
-                        lisp = new HAXTR();
-                        break;
-                    case JLISP.HARTR:
-                        lisp = new HARTR();
-                        break;
+                    //case JLISP.RTR:
+                    //    lisp = new RTR();
+                    //    break;
+                    //case JLISP.PXTR:
+                    //    lisp = new PXTR();
+                    //    break;
+                    //case JLISP.NTR:
+                    //    lisp = new NTR();
+                    //    break;
+                    //case JLISP.HAXTR:
+                    //    lisp = new HAXTR();
+                    //    break;
+                    //case JLISP.HARTR:
+                    //    lisp = new HARTR();
+                    //    break;
                     default:
                         System.err.println("no such component");
                         System.exit(-1);

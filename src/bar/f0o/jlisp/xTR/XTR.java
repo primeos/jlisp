@@ -33,20 +33,24 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class XTR extends LISPComponent {
 
+	private static XTR xtr;
 
-	public XTR() throws IOException{
-		new Thread(inputRaw).start();
-		new Thread(new InputListenerLISP()).start();
+	public XTR(){
+
 	}
 	
-	public void start(){
+	public void start() throws SocketException{
+		new Thread(inputRaw).start();
+		new Thread(new InputListenerLISP()).start();
 		this.register();
+		xtr = this;
 	}
 
 	//Only v4 At the moment
@@ -55,6 +59,7 @@ public class XTR extends LISPComponent {
 		for(String prefix : JLISP.getConfig().getEIDs()){
 			ArrayList<Loc> locators = new ArrayList<>();
 			for(Config.Rloc rloc : JLISP.getConfig().getRlocs()){
+				System.out.println(rloc);
 				Loc l = new Loc((byte)rloc.getPrio(),(byte)rloc.getWeight(),(byte)rloc.getPrio(),(byte)rloc.getWeight(),true,false,false,AfiType.IPv4,new IPv4Locator(rloc.getAddress()));
 				locators.add(l);
 			}
@@ -141,5 +146,9 @@ public class XTR extends LISPComponent {
 		return inputRaw.getSender();
 	}
 	
+	
+	public static XTR getXTR(){
+		return xtr;
+	}
 	
 }

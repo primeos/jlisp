@@ -37,11 +37,11 @@ public class InputListenerLISP implements Runnable{
 	@Override
 	public void run() {
 		while(true){
-			byte[] buf = new byte[Controller.getMTU()];
+			byte[] buf = new byte[XTR.getMTU()];
 			DatagramPacket p = new DatagramPacket(buf, buf.length);
 			try {
 				receiver.receive(p);
-				Controller.addReceiveWorker(new ETRWorker(p));
+				XTR.getXTR().addReceiveWorker(new ETRWorker(p));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
