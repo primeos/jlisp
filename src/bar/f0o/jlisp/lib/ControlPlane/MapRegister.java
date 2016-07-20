@@ -62,8 +62,16 @@ import javax.crypto.spec.SecretKeySpec;
  * |  \|                             Loc                           |
  * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
+/**
+ * Map Register as defined in RFC6830
+ *
+ */
 public class MapRegister extends  ControlMessage {
 
+	/**
+	 * HMAC for the key used in the Map Register message
+	 *
+	 */
     public enum HmacType {
         NONE(0), HMAC_SHA_1_96(1), HMAC_SHA_256_128(2);
         private final int val;
@@ -76,6 +84,11 @@ public class MapRegister extends  ControlMessage {
             return val;
         }
 
+        /**
+         * Hmac create from int
+         * @param x type of HMAC, 0 = NONE, 1 = SHA1_96, 2 = SHA_256_128
+         * @return
+         */
         public static HmacType fromInt(int x) {
             switch (x) {
                 case 0:
@@ -89,6 +102,10 @@ public class MapRegister extends  ControlMessage {
             return null;
         }
 
+        /**
+         * 
+         * @return length of the HMAC
+         */
 		public short getLength() {
 			switch(val){
 				case 1:
@@ -120,10 +137,21 @@ public class MapRegister extends  ControlMessage {
     private ArrayList<Record> records = new ArrayList<>();
 
 
+    /**
+     * 
+     * @param stream Byte stream containing the Map Register message
+     * @throws IOException
+     */
     public MapRegister(DataInputStream stream) throws IOException {
     	this(stream,stream.readByte());
     }
     
+    /**
+     * 
+     * @param stream Byte Stream to create the Map Register Message, missing the first byte
+     * @param version the missing first byte
+     * @throws IOException
+     */
     public MapRegister(DataInputStream stream, byte version) throws IOException {
     	this.type = 3;
         byte flag = version;
@@ -141,7 +169,15 @@ public class MapRegister extends  ControlMessage {
             this.records.add(new Record(stream));
 
     }
-
+    /**
+     * 
+     * @param pFlag Proxy Map Reply flag
+     * @param mFlag Map Notify Bit
+     * @param nonce 64bit Nonce
+     * @param keyId Type of Hmac as defined in MapRegister.HMAC
+     * @param authenticationData Key encoded with corresponding HMAC
+     * @param records Records to register
+     */
     public MapRegister(boolean pFlag, boolean mFlag, long nonce, HmacType keyId,
                        byte[] authenticationData, ArrayList<Record> records) {
         this.pFlag = pFlag;
@@ -201,36 +237,67 @@ public class MapRegister extends  ControlMessage {
         return byteStream.toByteArray();
     }
 
-    
 
+    /**
+     * 
+     * @return Proxy Map Reply bit
+     */
     public boolean ispFlag() {
         return pFlag;
     }
 
+    /**
+     * 
+     * @return Wants Map notify flag
+     */
     public boolean ismFlag() {
         return mFlag;
     }
 
+    /**
+     * 
+     * @return Number of records in the Map register
+     */
     public byte getRecordCount() {
         return recordCount;
     }
 
+    /**
+     * 
+     * @return 64bit Nonce
+     */
     public long getNonce() {
         return nonce;
     }
 
+    /**
+     * 
+     * @return Type of the HMAC as defined in MapRegister.HMAC
+     */
     public HmacType getKeyId() {
         return keyId;
     }
 
+    /**
+     * 
+     * @return Length of the authenticationData in octets
+     */
     public short getAuthenticationDataLength() {
         return authenticationDataLength;
     }
 
+    /**
+     * 
+     * @return Raw authentification data
+     */
     public byte[] getAuthenticationData() {
         return authenticationData;
     }
 
+    /**
+     * 
+     * @return Records included in the Map Register
+     */
     public ArrayList<Record> getRecords() {
         return records;
     }

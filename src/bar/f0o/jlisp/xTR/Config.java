@@ -119,7 +119,7 @@ public class Config {
 		return false;
 	}
 
-    class Rloc {
+    public class Rloc {
         private byte[] address;
         private int prio;
         private int weight;

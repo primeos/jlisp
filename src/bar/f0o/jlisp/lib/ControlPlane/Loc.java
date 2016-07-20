@@ -41,7 +41,10 @@ import java.io.IOException;
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
 
-
+/**
+ * LOC Part of the Control Messages defined in RFC 6830
+ *
+ */
 public class Loc {
     /**
      * Priority: smaller -> higher priority 255 means not used for unicast forwarding
@@ -64,6 +67,11 @@ public class Loc {
     private Loc() {
     }
 
+    /**
+     * 
+     * @param stream Byte stream of the data
+     * @throws IOException
+     */
     public Loc(DataInputStream stream) throws IOException {
         this.priority = stream.readByte();
         this.weight = stream.readByte();
@@ -88,6 +96,19 @@ public class Loc {
         //     this.pFlag = stream.readBoolean();
     }
 
+  
+    /**
+     * 
+     * @param priority priority field  
+     * @param weight weight field
+     * @param mPriority multicast priority field
+     * @param mWeight multicast weight field
+     * @param lFlag local locator flag
+     * @param pFlag probing bit
+     * @param rFlag route to locator in locator record bit
+     * @param locAFI AFI type of the locator
+     * @param locator locator contained in the message
+     */
     public Loc(byte priority, byte weight, byte mPriority, byte mWeight, boolean lFlag, boolean pFlag,
                boolean rFlag,
                AfiType locAFI, Locator locator) {
@@ -102,7 +123,10 @@ public class Loc {
         this.locator = locator;
     }
 
-
+    /**
+     * 
+     * @return raw data of the Loc part, ready to be used in the corresponding message
+     */
 	public byte[] toByteArray() {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(byteStream);
@@ -127,7 +151,10 @@ public class Loc {
         return byteStream.toByteArray();
     }
 
-    @Override
+
+	/**
+	 *@return pretty printed version
+	 */
     public String toString() {
         String res = "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n";
         res += "|Priority|Weight  |M-Priority|M-Weight|\n";
@@ -144,41 +171,77 @@ public class Loc {
     }
 
 
+    /**
+     * 
+     * @return priority of the loc
+     */
     public byte getPriority() {
         return priority;
     }
 
+    /**
+     * 
+     * @return weight of the loc
+     */
     public byte getWeight() {
         return weight;
     }
 
+    /**
+     * 
+     * @return multicast priority of the loc
+     */
     public byte getmPriority() {
         return mPriority;
     }
 
+    /**
+     * 
+     * @return multicast weight of the loc
+     */
     public byte getmWeight() {
         return mWeight;
     }
 
+    /**
+     * 
+     * @return local locator flag
+     */
     public boolean islFlag() {
         return lFlag;
     }
 
+    /**
+     * 
+     * @return probe bit
+     */
     public boolean ispFlag() {
         return pFlag;
     }
 
+    /**
+     * 
+     * @return route to locator flag
+     */
     public boolean isrFlag() {
         return rFlag;
     }
 
+    /**
+     * 
+     * @return Afi Type of the locator
+     */
     public AfiType getLocAFI() {
         return locAFI;
     }
 
+    /**
+     * 
+     * @return Locator contained in Loc
+     */
     public Locator getLocator() {
         return locator;
     }
 
-
+ 
 }

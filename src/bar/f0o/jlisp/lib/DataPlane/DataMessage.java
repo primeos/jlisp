@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 import bar.f0o.jlisp.lib.Net.IPPacket;
 
-/**
+/*
  * Dataplane Message
  *  0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -38,9 +38,12 @@ import bar.f0o.jlisp.lib.Net.IPPacket;
  * |             Instance ID / Locator-Status-Bits                 |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
+/**
+ * LISP Encapsulated Data
+ */
 public class DataMessage {
 
-    /**
+    /*
      * N: Nonce-present bit.
      * L: The L-bit is the 'Locator-Status-Bits' field enabled bit.
      * E: Echo-nonce-request bit. This bit MUST be ignored if N-bit is set to 0 otherwise indicates wether NONCE should be sent back.
@@ -67,7 +70,10 @@ public class DataMessage {
     private int instanceID;
     private IPPacket payload;
 
-    
+    /**
+     * 
+     * @param data Raw data for Data plane Message
+     */
     public DataMessage(byte[] data) {
 		byte flags = data[0];
 		this.nBit = (flags & 64) != 0;
@@ -93,6 +99,18 @@ public class DataMessage {
         this(nBit, lBit, eBit, vBit, iBit, nonce, 0, lsBits,  payload);
     }
  
+    /**
+     * 
+     * @param nBit Nonce present bit
+     * @param lBit Locator-Status-Bit enabled
+     * @param eBit Echo nonce request
+     * @param vBit Map Version present
+     * @param iBit Instance ID 
+     * @param nonce 64bit Nonce
+     * @param instanceId Instance ID
+     * @param lsBits Locator status bits
+     * @param payload IPPacket to Send
+     */
     public DataMessage(boolean nBit, boolean lBit, boolean eBit, boolean vBit, boolean iBit, int nonce, int instanceId, int lsBits, IPPacket payload) {
         this.nBit = nBit;
         this.lBit = lBit;
@@ -145,30 +163,68 @@ public class DataMessage {
                      + ", lsBits=" + lsBits + ", payload=" + payload;
         return ret;
     }
+    
+    
+    /**
+     * 
+     * @return Nonce present bit
+     */
 	public boolean isnBit() {
 		return this.nBit;
 	}
+    /**
+     * 
+     * @return Locator-Status-Bits present
+     */
 	public boolean islBit() {
 		return this.lBit;
 	}
+	/**
+	 * 
+	 * @return Echo-nonce-request bit
+	 */
 	public boolean iseBit() {
 		return this.eBit;
 	}
+	/**
+	 * 
+	 * @return Map-Version present bit
+	 */
 	public boolean isvBit() {
 		return this.vBit;
 	}
+	/**
+	 * 
+	 * @return Instance ID
+	 */
 	public boolean isiBit() {
 		return this.iBit;
 	}
+	/**
+	 * 
+	 * @return 64bit Nonce
+	 */
 	public int getNonce() {
 		return this.nonce;
 	}
+	/**
+	 * 
+	 * @return Locator status bits
+	 */
 	public int getLsBits() {
 		return this.lsBits;
 	}
+	/**
+	 * 
+	 * @return Instance ID
+	 */
 	public int getInstanceID() {
 		return this.instanceID;
 	}
+	/**
+	 * 
+	 * @return Payload as IPPacket
+	 */
 	public IPPacket getPayload() {
 		return this.payload;
 	}

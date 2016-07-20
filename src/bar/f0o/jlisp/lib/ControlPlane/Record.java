@@ -31,7 +31,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-/**
+/*
  * Record for Control Messages
  * 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
  * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -50,28 +50,33 @@ import java.util.ArrayList;
  * |  \|                             Loc                           |
  * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
+/**
+ * Record containing Locators for Control messages
+ * @author andre
+ *
+ */
 public class Record {
 
-    /**
-     * Record TTL: Store for n minutes 0 means removed immediately 0xffffffff recipient can decide
-     * Loc-Count: Number of loc entries: 0 no entries
-     * EID-Mask-Len: mask length for the prefix
-     * ACT: For negative replies:
-     * (0) No-Action:  The map-cache is kept alive, and no packet
-     * encapsulation occurs.
-     * <p/>
-     * (1) Natively-Forward:  The packet is not encapsulated or dropped
-     * but natively forwarded.
-     * <p/>
-     * (2) Send-Map-Request:  The packet invokes sending a Map-Request.
-     * <p/>
-     * (3) Drop:  A packet that matches this map-cache entry is dropped.
-     * An ICMP Destination Unreachable message SHOULD be sent.
-     * A: set to 1 by ETR set to 0 for proxy reply
-     * Map-Version-Number: if not 0 informs what version number of the eid is contained
-     * EID-Prefix-AFI: Family of the address (1 ipv4, 2 ipv6)
-     * EID-Prefix: Prefix either IPv4 or IPv6
-     */
+	    /*
+	     * Record TTL: Store for n minutes 0 means removed immediately 0xffffffff recipient can decide
+	     * Loc-Count: Number of loc entries: 0 no entries
+	     * EID-Mask-Len: mask length for the prefix
+	     * ACT: For negative replies:
+	     * (0) No-Action:  The map-cache is kept alive, and no packet
+	     * encapsulation occurs.
+	     * <p/>
+	     * (1) Natively-Forward:  The packet is not encapsulated or dropped
+	     * but natively forwarded.
+	     * <p/>
+	     * (2) Send-Map-Request:  The packet invokes sending a Map-Request.
+	     * <p/>
+	     * (3) Drop:  A packet that matches this map-cache entry is dropped.
+	     * An ICMP Destination Unreachable message SHOULD be sent.
+	     * A: set to 1 by ETR set to 0 for proxy reply
+	     * Map-Version-Number: if not 0 informs what version number of the eid is contained
+	     * EID-Prefix-AFI: Family of the address (1 ipv4, 2 ipv6)
+	     * EID-Prefix: Prefix either IPv4 or IPv6
+	     */
 
     private int  recordTTL;
     private byte locatorCount, eidMaskLen, act, rsvd;
@@ -86,6 +91,11 @@ public class Record {
     private Record() {
     }
 
+    /**
+     * 
+     * @param stream Byte Stream containing the Record
+     * @throws IOException
+     */
     public Record(DataInputStream stream) throws IOException {
         this.recordTTL = stream.readInt();
         this.locatorCount = stream.readByte();
@@ -102,7 +112,17 @@ public class Record {
         for (int i = 0; i < this.locatorCount; i++)
             this.locs.add(new Loc(stream));
     }
-
+    /**
+     * 
+     * @param recordTTL TTL for the record in econds
+     * @param eidMaskLen Length of the EID prefix
+     * @param act Flags for negative replies 0 = No-Action 1 = Natively-Forward 2 = Send-Map-Request 3 = Drop
+     * @param aFlag Authoritative bit
+     * @param versionNumber Version of the mappong
+     * @param eidPrefixAfi AFI Type of the EID Prefix
+     * @param eidPrefix Raw eid
+     * @param locs Locs included
+     */
     public Record(int recordTTL, byte eidMaskLen, byte act, boolean aFlag, short versionNumber, AfiType eidPrefixAfi,
                   byte[] eidPrefix, ArrayList<Loc> locs) {
         this.recordTTL = recordTTL;
@@ -116,6 +136,10 @@ public class Record {
         this.locs = locs;
     }
 
+    /**
+     * 
+     * @return Raw byte stream
+     */
     public byte[] toByteArray() {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(byteStream);
@@ -139,6 +163,9 @@ public class Record {
         return byteStream.toByteArray();
     }
  
+    /**
+     * Pretty printer
+     */
     @Override
     public String toString() {
         String ret = "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n";
@@ -168,46 +195,90 @@ public class Record {
         return ret;
     }
 
+    /**
+     * 
+     * @return TTL of the Record in minutes
+     */
     public int getRecordTTL() {
         return recordTTL;
     }
 
+    /**
+     * 
+     * @return Number of locators present
+     */
     public byte getLocatorCount() {
         return locatorCount;
     }
 
+    /**
+     * 
+     * @return Prefix length of the EID
+     */
     public byte getEidMaskLen() {
         return eidMaskLen;
     }
 
+    /**
+     * 
+     * @return Flags for negative replies, see constructor
+     */
     public byte getAct() {
         return act;
     }
 
+    /**
+     * 
+     * @return Reserved byte, not yet used
+     */
     public byte getRsvd() {
         return rsvd;
     }
 
+    /**
+     * 
+     * @return Authoritative answer flag
+     */
     public boolean isaFlag() {
         return aFlag;
     }
 
+    /**
+     * 
+     * @return Reserved bytes, not yet used
+     */
     public short getReserved() {
         return reserved;
     }
 
+    /**
+     * 
+     * @return Version number of the mapping
+     */
     public short getVersionNumber() {
         return versionNumber;
     }
 
+    /**
+     * 
+     * @return AfiType of the EID
+     */
     public AfiType getEidPrefixAfi() {
         return eidPrefixAfi;
     }
-
+    
+    /**
+     * 
+     * @return Raw EID
+     */
     public byte[] getEidPrefix() {
         return eidPrefix;
     }
 
+    /**
+     * 
+     * @return List of locs present
+     */
     public ArrayList<Loc> getLocs() {
         return locs;
     }

@@ -77,6 +77,17 @@ public class ApplicationData implements LCAFType {
 
 	}
 
+	/**
+	 * 
+	 * @param trafficClass Traffic class of the Locator
+	 * @param protocol	Protocol used
+	 * @param localPortLower Lower Range of local port
+	 * @param localPortHigher Higher Range of local port
+	 * @param remotePortLower Lower Range of remote port
+	 * @param remotePortHigher Higher Range of remote port
+	 * @param type	Afi type of the locator
+	 * @param locator Raw locator
+	 */
 	public ApplicationData(int trafficClass, byte protocol, short localPortLower, short localPortHigher,
 			short remotePortLower, short remotePortHigher, AfiType type, byte[] locator) {
 		super();

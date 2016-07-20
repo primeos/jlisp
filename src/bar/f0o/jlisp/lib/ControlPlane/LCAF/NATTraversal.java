@@ -88,7 +88,19 @@ public class NATTraversal implements LCAFType {
 			len -= (ntrRlocTmp.length + 2);
 		}
 	}
-
+	/**
+	 * 
+	 * @param msUDPNum MS UDP Port number
+	 * @param etrUDPNum ETR UDP Port number
+	 * @param gerAfi Global ETR AFI
+	 * @param globalETRRloc Global ETR Rloc
+	 * @param mrAfi MS AFI
+	 * @param msRLOC Global MS Rloc
+	 * @param perAfi Private ETR AFI
+	 * @param privateETRRloc Private ETF Rloc
+	 * @param ntrRlocAfi List of NTR Afi types
+	 * @param ntrRloc List of NTR Rlocs
+	 */
 	public NATTraversal(short msUDPNum, short etrUDPNum, AfiType gerAfi, short globalETRRloc, AfiType mrAfi,
 			short msRLOC, AfiType perAfi, short privateETRRloc, ArrayList<AfiType> ntrRlocAfi,
 			ArrayList<byte[]> ntrRloc) {

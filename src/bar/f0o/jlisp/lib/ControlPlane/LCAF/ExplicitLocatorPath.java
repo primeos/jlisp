@@ -26,7 +26,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
+import bar.f0o.jlisp.xTR.Config;
+import bar.f0o.jlisp.xTR.Config.Rloc;
 
 /*
  *  Explicit Locator Path (ELP) Canonical Address Format:
@@ -76,6 +79,14 @@ public class ExplicitLocatorPath implements LCAFType {
 		}
 	}
 
+	/**
+	 * 
+	 * @param lBits List of L Flags 
+	 * @param pBits List of P Flags
+	 * @param sBits List of S Flags
+	 * @param afiTypes List of AFI types
+	 * @param reencapHops List of the Locators for reencapsulation
+	 */
 	public ExplicitLocatorPath(ArrayList<Boolean> lBits, ArrayList<Boolean> pBits, ArrayList<Boolean> sBits,
 			ArrayList<AfiType> afiTypes, ArrayList<byte[]> reencapHops) {
 		super();
@@ -131,7 +142,17 @@ public class ExplicitLocatorPath implements LCAFType {
 		return reencapHops;
 	}
 	
+
 	public byte[] getRloc(){
+		Config.Rloc[] rlocs = JLISP.getConfig().getRlocs();
+		for(Rloc rloc : rlocs)
+		{
+			int index = this.reencapHops.indexOf(rloc.getAddress());
+			if(index > 0)
+			{
+				return index < this.reencapHops.size()?this.reencapHops.get(index+1):null;
+			}
+		}
 		return null;
 	}
 	

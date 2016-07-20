@@ -20,16 +20,31 @@
  ******************************************************************************/
 
 package bar.f0o.jlisp.lib.Net;
-
+/**
+ *Payload of IP Packets 
+ *
+ */
 public abstract class IPPayload {
 
 	public static final int UDP=17;
 	public static final byte ICMP = 0;
 
+	/**
+	 * 
+	 * @return Raw data as byte Array
+	 */
 	public abstract byte[] toByteArray();
 
+	/**
+	 * 
+	 * @return Lenght of the payload in octets
+	 */
 	public abstract int getLength();
 
+	/**
+	 * 
+	 * @return Protocol from the IP Header field
+	 */
 	public abstract byte getProtocol();
 	
 }

@@ -22,12 +22,24 @@ package bar.f0o.jlisp.lib.ControlPlane.LCAF;
 
 import java.io.IOException;
 
+/**
+ * Types from the LCAF Internet-draft
+ *
+ */
 public interface LCAFType {
 
+	/**
+	 * 
+	 * @return Raw Data ready to send
+	 * @throws IOException
+	 */
 	public byte[] toByteArray() throws IOException;
 
 	public String toString();
 	
+	/** 
+	 * @return Raw RLOC in the message for sending packets
+	 */
 	public byte[] getRloc();
 
 }

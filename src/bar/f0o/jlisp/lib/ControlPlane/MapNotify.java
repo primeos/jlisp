@@ -54,12 +54,26 @@ import java.io.IOException;
  * |  \|                             Loc                           |
  * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
+/**
+ *MapNotify Message as defined in RFC6830
+ */
 public class MapNotify extends MapRegister {
 
+	/**
+	 * 
+	 * @param stream Bytestream including the Map Notify message
+	 * @throws IOException
+	 */
     public MapNotify(DataInputStream stream) throws IOException {
 	  	this(stream,stream.readByte());
     }
 	
+    /**
+     * 
+     * @param stream Bytestream of the Map Notify message without the first byte
+     * @param version the missing first byte
+     * @throws IOException
+     */
     public MapNotify(DataInputStream stream, byte version) throws IOException {
         super(stream,version);
     }

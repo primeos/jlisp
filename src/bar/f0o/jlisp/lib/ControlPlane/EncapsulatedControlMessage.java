@@ -31,6 +31,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Encapsulated Control Messages as defined in RFC6830
+ *
+ */
 public class EncapsulatedControlMessage extends ControlMessage {
 
     /**
@@ -63,6 +67,14 @@ public class EncapsulatedControlMessage extends ControlMessage {
     private EncapsulatedControlMessage() {
     }
 
+    /**
+     * Constructor for Encapsulation of Control messages, needs Data for UDP Header and the Message to encapsulate
+     * @param srcAddr Source address 
+     * @param dstAddr Destination address
+     * @param srcPort Source Port
+     * @param dstPort Destination Port
+     * @param message Controlmessage for encapsulation
+     */
     public EncapsulatedControlMessage(byte[] srcAddr, byte[] dstAddr, short srcPort, short dstPort,
                                       ControlMessage message) {
         this.srcAddr = srcAddr;
@@ -72,6 +84,12 @@ public class EncapsulatedControlMessage extends ControlMessage {
         this.message = message;
     }
 
+    /**
+     * Create an Encapsulated Control Message from Raw byte stream
+     * @param stream Bytestream without the first byte
+     * @param version missing first byte from the byte stream
+     * @throws IOException
+     */
     public EncapsulatedControlMessage(DataInputStream stream, byte version) throws IOException{
     	this.type = 8;
     	this.sBit = (version&0b00001000)!=0;
@@ -112,22 +130,42 @@ public class EncapsulatedControlMessage extends ControlMessage {
         return message;
     }
 
+    /**
+     * 
+     * @return the source address of the encapuslated data
+     */
     public byte[] getSrcAddr() {
         return srcAddr;
     }
 
+    /**
+     * 
+     * @return the destination address of the encapsulated data
+     */
     public byte[] getDstAddr() {
         return dstAddr;
     }
 
+    /**
+     * 
+     * @return the source port of the encapsulated data
+     */
     public short getSrcPort() {
         return srcPort;
     }
 
+    /**
+     * 
+     * @return the destination port of the encapsulated data
+     */
     public short getDstPort() {
         return dstPort;
     }
 
+    /**
+     * 
+     * @return Security Bit, no usage defined yet
+     */
     public boolean issBit() {
         return sBit;
     }

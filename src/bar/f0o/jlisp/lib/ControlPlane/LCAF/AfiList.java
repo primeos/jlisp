@@ -78,6 +78,11 @@ public class AfiList implements LCAFType {
 		}
 	}
 
+	/**
+	 * 
+	 * @param locatorTypes Types of the locators in the "locators" field
+	 * @param locators List of locators
+	 */
 	public AfiList(ArrayList<AfiType> locatorTypes, ArrayList<Locator> locators) {
 		super();
 		this.locatorTypes = locatorTypes;

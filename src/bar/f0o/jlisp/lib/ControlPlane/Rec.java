@@ -30,7 +30,7 @@ import java.net.UnknownHostException;
 
 
 /**
- * Created by schmidtm on 24.01.15.
+ *Rec including EID Prefix ans Mask length
  */
 public class Rec {
         /*     0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
@@ -49,6 +49,11 @@ public class Rec {
     private Rec() {
     }
 
+    /**
+     * 
+     * @param stream Bye Stream including the Rec
+     * @throws IOException
+     */
     public Rec(DataInputStream stream) throws IOException {
         this.resevered = stream.readByte();
         this.eidMaskLen = stream.readByte();
@@ -58,12 +63,22 @@ public class Rec {
         this.eidPrefix = buffer;
     }
 
+    /**
+     * 
+     * @param eidMaskLen Length of the Prefix 
+     * @param eidPrefixAfi Afi Type of the Prefix
+     * @param eidPrefix Raw prefix bytes
+     */
     public Rec(byte eidMaskLen, ControlMessage.AfiType eidPrefixAfi, byte[] eidPrefix) {
         this.eidMaskLen = eidMaskLen;
         this.eidPrefixAfi = eidPrefixAfi;
         this.eidPrefix = eidPrefix;
     }
 
+    /**
+     * 
+     * @return Raw byte Data of the Rec
+     */
     public byte[] toByteArray() {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(byteStream);
@@ -78,6 +93,9 @@ public class Rec {
         return byteStream.toByteArray();
     }
 
+    /**
+     * Pretty printer
+     */
     public String toString() {
         String res = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\n";
         res += "|Reserved|EID-mask-len|EID-Prefix-Afi  |\n";
@@ -93,18 +111,34 @@ public class Rec {
         return res;
     }
 
+    /**
+     * 
+     * @return length of the prefix
+     */
     public byte getEidMaskLen() {
         return eidMaskLen;
     }
 
+    /**
+     * 
+     * @return reserved space, not used yet
+     */
     public byte getResevered() {
         return resevered;
     }
 
+    /**
+     * 
+     * @return Afi Type of the EID
+     */
     public ControlMessage.AfiType getEidPrefixAfi() {
         return eidPrefixAfi;
     }
 
+    /**
+     * 
+     * @return Raw EID prefix
+     */
     public byte[] getEidPrefix() {
         return eidPrefix;
     }

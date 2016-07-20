@@ -24,6 +24,10 @@ package bar.f0o.jlisp.lib.ControlPlane;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+/**
+ * IPv4 Locator, consist of 4 bytes
+ *
+ */
 public class IPv4Locator implements Locator {
     private byte[] locator = new byte[4];
 

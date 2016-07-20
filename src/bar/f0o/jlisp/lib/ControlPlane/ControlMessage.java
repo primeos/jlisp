@@ -28,6 +28,9 @@ public abstract class ControlMessage {
 	
 	protected byte type;
 	
+	/**
+	 * AFI Types for usage in various packet formats
+	 */
     //AFI Type
     public enum AfiType {
         NONE(0),
@@ -37,14 +40,27 @@ public abstract class ControlMessage {
 
         private final int val;
 
+        /**
+         * 
+         * @param x AFI type as defined by IANA
+         */
         private AfiType(int x) {
             this.val = x;
         }
 
+        /**
+         * 
+         * @return AFI type as defined by IANA
+         */
         public int getVal() {
             return val;
         }
 
+        /**
+         * 
+         * @param x AFI Type as defined by IANA
+         * @return
+         */
         public static AfiType fromInt(int x) {
             switch (x) {
                 case 0:
@@ -61,6 +77,11 @@ public abstract class ControlMessage {
         }
 
 
+        /**
+         * 
+         * @param a AFI Type object
+         * @return length in octets
+         */
         //Get number of octets
         public static int length(AfiType a) {
             switch (a) {
@@ -76,11 +97,22 @@ public abstract class ControlMessage {
             return -1;
         }
 
+        /**
+         * 
+         * @param a AFI Type as defined by IANA
+         * @return length in octets
+         */
         public static int length(int a) {
             return length(fromInt(a));
         }
     }
 
+    /**
+     * General constructor for control messages
+     * @param stream Stream of raw byte data
+     * @return Object of corresponding control message
+     * @throws IOException
+     */
     public static ControlMessage fromStream(DataInputStream stream) throws IOException{
     	byte version = stream.readByte();
     	int type = (version & 0xF);
@@ -97,8 +129,16 @@ public abstract class ControlMessage {
     	return null;
     }
 
+    /**
+     * 
+     * @return Control message as byte Array ready to send
+     */
     public abstract byte[] toByteArray();
     
+    /**
+     * 
+     * @return Type of the Message as defined in RFC6830 and LCAF-ID
+     */
     public  byte getType() {
         return type;
     }

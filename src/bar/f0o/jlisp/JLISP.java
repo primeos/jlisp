@@ -45,10 +45,18 @@ public class JLISP {
 
     private static Config config;
 
+    /**
+     * 	Returns config of current instance of JLISP
+     * @return Config of current instance
+     */
     public static Config getConfig() {
         return JLISP.config;
     }
 
+    /**
+     * 
+     * @param args Config file and foreground flag
+     */
     public static void main(String[] args) {
         if (args.length == 0 || args.length > 2) {
             System.out.println("usage: java JLISP <config_path> [-f]");

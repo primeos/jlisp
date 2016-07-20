@@ -24,7 +24,10 @@ package bar.f0o.jlisp.lib.ControlPlane;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-
+/**
+ * IPv6 Locator consists of 16 bytes
+ *
+ */
 public class IPv6Locator implements Locator {
     private byte[] locator = new byte[16];
 

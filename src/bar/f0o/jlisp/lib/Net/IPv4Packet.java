@@ -48,6 +48,11 @@ public class IPv4Packet extends IPPacket {
 	private IPv4Packet() {
     }
 
+    /**
+     * 
+     * @param stream Byte stream to generate IPv4 Packet
+     * @throws IOException
+     */
     public IPv4Packet(DataInputStream stream) throws IOException {
         byte lengthTmp = stream.readByte();
         this.headerLength = (byte) (lengthTmp & 0x0F);
@@ -70,12 +75,21 @@ public class IPv4Packet extends IPPacket {
         this.payload = new GenericPayload(stream,(this.totalLength-(this.headerLength*4)));
     }
 
+    /**
+     * Simple IPv4 Packet
+     * @param sourceAddress Source Address
+     * @param destinationAddress Destination Address
+     */
     public IPv4Packet(byte[] sourceAddress, byte[] destinationAddress) {
         this.sourceAddress = sourceAddress;
         this.destinationAddress = destinationAddress;
         this.identification = (short) new Random().nextInt();
     }
 
+    /**
+     * 
+     * @param packet Raw data as byte array
+     */
     public IPv4Packet(byte[] packet) {
         this.headerLength = (byte) (packet[0] & 0x0F);
         this.tos = packet[1];
@@ -111,6 +125,9 @@ public class IPv4Packet extends IPPacket {
 
     }
 
+    /**
+     * Generate IPv4 Checksum
+     */
     private void checksum() {
     	this.checksum = 0;
         byte[] tmp = toByteArray();
@@ -127,7 +144,9 @@ public class IPv4Packet extends IPPacket {
     }
     
    
-
+    /**
+     * Add Payload to existing IPv4 Packet
+     */
     public void addPayload(IPPayload payload) {
     	this.protocol = payload.getProtocol();
         this.payload = payload;
@@ -135,10 +154,15 @@ public class IPv4Packet extends IPPacket {
         this.checksum();
     }
     
+    /**
+     * 
+     * @return Get payload from IPv4 packet
+     */
     public IPPayload getPayload(){
     	return this.payload;
     }
 
+    
     public byte[] toByteArray() {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(byteStream);
@@ -170,36 +194,68 @@ public class IPv4Packet extends IPPacket {
         return byteStream.toByteArray();
     }
 
+    	/**
+    	 * @return Source IP
+    	 */
         public byte[] getSrcIP() {
         	return this.sourceAddress;
         }
+        /**
+         * 
+         * @param ip Source IP
+         */
         public void setSrcIP(byte[] ip){
         	this.sourceAddress = ip;
         }
+        /**
+         * @return Destinatio IP
+         */
         public byte[] getDstIP() {
         	return this.destinationAddress;
         }
+        /**
+         * 
+         * @param ip Destination IP
+         */
         public void setDstIP(byte[] ip){
         	this.destinationAddress = ip;
         }
-
+        /**
+         * @return Time to live in hops
+         */
         public byte getTTL() {
         	return this.ttl;
         }
+        /**
+         * @param ttl Time to live in hops
+         */
         public void setTTL(byte ttl) {
         	this.ttl = ttl;
         }
 
+        /**
+         * @return Type of Service
+         */
         public byte getToS() {
         	return this.tos;
         }
+        /**
+         * @param tos Type of service
+         */
         public void setToS(byte tos) {
         	this.tos = tos;
         }
         
+        /**
+         * 
+         * @return Checksum
+         */
         public short getChecksum(){
         	return checksum;
         }
+        /**
+         * Update checksum after altering the packet
+         */
         public void updateChecksum(){
         	this.checksum();
         }

@@ -26,6 +26,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ *Generic UDP Packet
+ */
 public class UDPPacket extends IPPayload {
 
 	private short srcPort;
@@ -34,6 +37,14 @@ public class UDPPacket extends IPPayload {
 	private short checksum;
 	private byte[] payload;
 	
+	/**
+	 * 
+	 * @param srcAddresss Source address
+	 * @param srcPort Source port
+	 * @param dstAddress Destination address
+	 * @param dstPort Destinatio  port
+	 * @param payload UDP payload
+	 */
 	public UDPPacket(byte[] srcAddresss,short srcPort,byte[] dstAddress,short dstPort,byte[] payload){
 		this.srcPort = srcPort;
 		this.dstPort = dstPort;
@@ -48,7 +59,11 @@ public class UDPPacket extends IPPayload {
 		}
 	}
 	
-	
+	/**
+	 * 
+	 * @param stream Bytestream containing UDP Packet
+	 * @throws IOException
+	 */
 	public UDPPacket(DataInputStream stream) throws IOException {
 		this.srcPort = stream.readShort();
 		this.dstPort = stream.readShort();
@@ -57,6 +72,10 @@ public class UDPPacket extends IPPayload {
 		stream.readFully(payload);
 	}
 
+	/**
+	 * 
+	 * @param data Raw UDP data packet
+	 */
 	public UDPPacket(byte[] data){
 		this.srcPort = (short)((data[0]<<8)+(data[1]&0xFF));
 		this.dstPort = (short)((data[2]<<8)+(data[3]&0xFF));
@@ -83,16 +102,25 @@ public class UDPPacket extends IPPayload {
 	        return byteStream.toByteArray();	
 	}
 
+	/**
+	 * @return Length of the packet
+	 */
 	@Override
 	public int getLength() {
 		return (payload.length/4)+2;
 	}
+
 
 	@Override
 	public byte getProtocol() {
 		return IPPayload.UDP;
 	}
 	
+	/**
+	 * Generate UDP Checksum
+	 * @param src Source address
+	 * @param dst Destination address
+	 */
 	public void generateChecksumV4(byte[] src,byte[] dst){
 		int sum = 0;
 		sum += (short) ((src[1] + (src[0] << 8)) ^ 0xFFFF); 
@@ -113,23 +141,42 @@ public class UDPPacket extends IPPayload {
 		
 	}
 	
+	/**
+	 * Generate UDP CHecksum for IPv6 not implemented yet
+	 * @param src
+	 * @param dst
+	 */
 	private void generateChecksumV6(byte[] src,byte[] dst){
 		
 	}
 
-
+	/**
+	 * 
+	 * @return Checksum of the packet
+	 */
 	public short getChecksum() {
 		return this.checksum;
 	}
 
-
+	/**
+	 * 
+	 * @return Source port
+	 */
 	public short getSrcPort() {
 		return this.srcPort;
 	}
+	/**
+	 * 
+	 * @return Destination port
+	 */
 	public short getDstPort() {
 		return this.dstPort;
 	}
 	
+	/**
+	 * 
+	 * @return Payload of the UDP packet
+	 */
 	public byte[] getPayload(){
 		return this.payload;
 	}

@@ -35,6 +35,11 @@ public class LCAFLocator implements Locator {
 	private int lcafType = 0;
 	private LCAFType type = null;
 
+	/**
+	 * Constructor for LCAF, alawys use this one
+	 * @param stream Byte stream containing the LCAF Message
+	 * @throws IOException
+	 */
 	public LCAFLocator(DataInputStream stream) throws IOException {
 		// RSVD1
 		stream.readByte();
@@ -93,11 +98,18 @@ public class LCAFLocator implements Locator {
 		}
 	}
 
+	/**
+	 * EID Type of LCAF Message
+	 */
 	@Override
 	public ControlMessage.AfiType getType() {
 		return ControlMessage.AfiType.LCAF;
 	}
 	
+	/**
+	 * 
+	 * @return Type of LCAF Message
+	 */
 	public int getLCAFType(){
 		return this.lcafType;
 	}
@@ -113,8 +125,8 @@ public class LCAFLocator implements Locator {
 			stream.write(type.toByteArray());
 		return byteStream.toByteArray();
 	}
+
 	
-	//TODO: locator
 	public byte[] getRloc() {
 		return type.getRloc();
 	}

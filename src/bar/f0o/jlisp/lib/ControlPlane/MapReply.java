@@ -61,6 +61,10 @@ import java.util.ArrayList;
  * |    AD Type    |       Authentication Data Content . . .       |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
+/**
+ * Map Reply Message format as defined in RFC6830
+ *
+ */
 public class MapReply extends ControlMessage {
 
     /**
@@ -82,10 +86,21 @@ public class MapReply extends ControlMessage {
     private byte adType;
     private int  adContent;
     
+    /**
+     * 
+     * @param stream Raw Byte stream including the Map Reply
+     * @throws IOException
+     */
     public MapReply(DataInputStream stream) throws IOException {
     	this(stream,stream.readByte());
     }
 
+    /**
+     * 
+     * @param stream Byte Stream containing the Map Reply without the first byte
+     * @param version the missing first byte
+     * @throws IOException
+     */
     public MapReply(DataInputStream stream,byte version) throws IOException {
     	this.type = 2;
         byte flags = version;
@@ -104,6 +119,15 @@ public class MapReply extends ControlMessage {
         }
     }
 
+    
+    /**
+     * 
+     * @param pBit Probe bit
+     * @param eBit Echo nonce locator reachability flag
+     * @param sBit Security bit
+     * @param nonce 64 bit Nonce
+     * @param records Records included in the Map reply
+     */
     public MapReply(boolean pBit, boolean eBit, boolean sBit, long nonce, ArrayList<Record> records) {
         this.sBit = sBit;
         this.eBit = eBit;
@@ -141,6 +165,9 @@ public class MapReply extends ControlMessage {
     }
 
     @Override
+    /**
+     * Pretty printer for the message
+     */
     public String toString() {
         String ret = "MapReply [pBit=" + pBit + ", eBit=" + eBit + ", sBit=" + sBit
                      + ", nonce=" + nonce + ", recordCount=" + recordCount
@@ -153,40 +180,75 @@ public class MapReply extends ControlMessage {
 
     //Getter
 
-   
 
+    /**
+     * 
+     * @return Probe bit
+     */
     public boolean ispBit() {
         return pBit;
     }
 
+    /**
+     * 
+     * @return Echo nonce locator reachability
+     */
     public boolean iseBit() {
         return eBit;
     }
-
+    
+    /**
+     * 
+     * @return security bit
+     */
     public boolean issBit() {
         return sBit;
     }
 
+    /**
+     * 
+     * @return 64bit Nonce
+     */
     public long getNonce() {
         return nonce;
     }
 
+    /**
+     * 
+     * @return Number of records included
+     */
     public byte getRecordCount() {
         return recordCount;
     }
 
+    /**
+     * 
+     * @return reserved Bytes, not used yet
+     */
     public short getReserved() {
         return reserved;
     }
 
+    /**
+     * 
+     * @return The records included in the Map Reply
+     */
     public ArrayList<Record> getRecords() {
         return records;
     }
 
+    /**
+     * 
+     * @return Authentificationtype Data, not yet used
+     */
     public byte getAdType() {
         return adType;
     }
 
+    /**
+     * 
+     * @return Authentification Data, not yet used
+     */
     public int getAdContent() {
         return adContent;
     }

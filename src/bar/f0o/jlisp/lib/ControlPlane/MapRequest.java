@@ -56,6 +56,10 @@ import java.util.Map;
  * |                   Map-Reply Record  ...                       |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
+/**
+ * Map Request as defined in RFC6830
+ *
+ */
 public class MapRequest extends ControlMessage {
 
     /**
@@ -91,10 +95,21 @@ public class MapRequest extends ControlMessage {
     private MapRequest() {
     }
 
+    /**
+     * 
+     * @param stream Raw Byte stream containing the Map Request
+     * @throws IOException
+     */
     public MapRequest(DataInputStream stream) throws IOException {
     	this(stream,stream.readByte());
     }
     
+    /**
+     * 
+     * @param stream Raw Byte stream containing the Map Request without the first byte
+     * @param version The missing first byte
+     * @throws IOException
+     */
     public MapRequest(DataInputStream stream,byte version) throws IOException {
     	this.type = 1;
         byte flags = version;
@@ -125,6 +140,23 @@ public class MapRequest extends ControlMessage {
             this.reply = new MapReply(stream);
     }
 
+ 
+    
+    /**
+     * 
+     * @param aFlag Authoritative bit
+     * @param mFlag Map Data present flag
+     * @param pFlag Probe bit
+     * @param smrBit SMR Flag
+     * @param pitrBit Sned by PITR bit
+     * @param smrInvoked Answer to an SMR bit
+     * @param nonce 64bit Nonce
+     * @param sourceEidAfi AFI type of the source EID
+     * @param sourceEIDAddress Raw source eid
+     * @param itrRlocPairs Pairs of ITRs and RLOcs from the sender
+     * @param recs Records asked for
+     * @param reply Included Map Reply, may be null ich Map Data present flag is 0
+     */
     public MapRequest(boolean aFlag, boolean mFlag, boolean pFlag, boolean smrBit, boolean pitrBit,
                       boolean smrInvoked, long nonce, AfiType sourceEidAfi, byte[] sourceEIDAddress,
                       Map<Short, byte[]> itrRlocPairs, ArrayList<Rec> recs, MapReply reply) {
@@ -144,6 +176,9 @@ public class MapRequest extends ControlMessage {
         this.reply = reply;
     }
 
+    /**
+     * Raw version of the Map Request
+     */
     public byte[] toByteArray() {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(byteStream);
@@ -183,33 +218,10 @@ public class MapRequest extends ControlMessage {
         return byteStream.toByteArray();
     }
 
+    
     /**
-     * Map Request Message
-     * <p/>
-     * 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |Type=1 |A|M|P|S|p|s|    Reserved     |   IRC   | Record Count  |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |                         Nonce . . .                           |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |                         . . . Nonce                           |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |         Source-EID-AFI        |   Source EID Address  ...     |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |         ITR-RLOC-AFI 1        |    ITR-RLOC Address 1  ...    |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |                              ...                              |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |         ITR-RLOC-AFI n        |    ITR-RLOC Address n  ...    |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * / |   Reserved    | EID mask-len  |        EID-Prefix-AFI         |
-     * Rec +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * \ |                       EID-Prefix  ...                         |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |                   Map-Reply Record  ...                       |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * Pretty printed Version of the Map Request Message
      */
-
     public String toString() {
         String rsvp = "";
         String res = ""; /* String.format("+-+\n" +
@@ -226,59 +238,115 @@ public class MapRequest extends ControlMessage {
     }
 
     //Getter
-
+  
+    /**
+     * 
+     * @return Authoritative bit
+     */
     public boolean isaFlag() {
         return aFlag;
     }
 
+    /**
+     * 
+     * @return Map data present
+     */
     public boolean ismFlag() {
         return mFlag;
     }
 
+    /**
+     * 
+     * @return Probe Request
+     */
     public boolean ispFlag() {
         return pFlag;
     }
 
+    /**
+     * 
+     * @return SMR Message?
+     */
     public boolean isSmrBit() {
         return smrBit;
     }
 
+    /**
+     * 
+     * @return Is message from PITR
+     */
     public boolean isPitrBit() {
         return pitrBit;
     }
 
+    /**
+     * 
+     * @return Is message answer to SMR
+     */
     public boolean isSmrInvoked() {
         return smrInvoked;
     }
 
+    /**
+     * 
+     * @return Number of ITR/RLOC pairs
+     */
     public byte getIrc() {
         return irc;
     }
 
+    /**
+     * 
+     * @return Number of records in the Map Request
+     */
     public byte getRecordCount() {
         return recordCount;
     }
 
+    /**
+     * 
+     * @return 64bit Nonce
+     */
     public long getNonce() {
         return nonce;
     }
 
+    /**
+     * 
+     * @return AfiType of the Source EID
+     */
     public AfiType getSourceEidAfi() {
         return sourceEidAfi;
     }
 
+    /**
+     * 
+     * @return Raw Source EID
+     */
     public byte[] getSourceEIDAddress() {
         return sourceEIDAddress;
     }
 
+    /**
+     * 
+     * @return Pairs ITR/RLOC
+     */
     public Map<Short, byte[]> getItrRlocPairs() {
         return itrRlocPairs;
     }
 
+    /**
+     * 
+     * @return Records asked for in the Map Request
+     */
     public ArrayList<Rec> getRecs() {
         return recs;
     }
 
+    /**
+     * 
+     * @return Map Reply present in the Request if M Flag set, null otherwise
+     */
     public MapReply getReply() {
         return reply;
     }

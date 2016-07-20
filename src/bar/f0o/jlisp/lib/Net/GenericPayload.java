@@ -24,7 +24,10 @@ package bar.f0o.jlisp.lib.Net;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-
+/**
+ * Generic IP Payload
+ *
+ */
 public class GenericPayload extends IPPayload{
 	private byte[] payload;
 	

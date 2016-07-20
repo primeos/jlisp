@@ -24,6 +24,10 @@ package bar.f0o.jlisp.lib.Net;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+/**
+ * Not implemented yet
+ *
+ */
 public class IPv6Packet extends IPPacket {
 
 	private IPv6Packet() {

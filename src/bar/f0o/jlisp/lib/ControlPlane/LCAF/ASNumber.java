@@ -59,6 +59,12 @@ public class ASNumber implements LCAFType {
 		stream.read(address);
 	}
 
+	/**
+	 * 
+	 * @param asNumber Number of the AS
+	 * @param type AFI type of the locator
+	 * @param address Raw locator
+	 */
 	public ASNumber(int asNumber, AfiType type, byte[] address) {
 		super();
 		this.asNumber = asNumber;

@@ -23,12 +23,31 @@ package bar.f0o.jlisp.lib.ControlPlane;
 
 import java.io.IOException;
 
+/**
+ *Locators to be used in LISP Messages 
+ */
 public interface Locator {
+	/**
+	 * @return AfiType of the Message
+	 */
     public ControlMessage.AfiType getType();
 
+    /**
+     * 
+     * @return raw data ready to send
+     * @throws IOException
+     */
     public byte[] toByteArray() throws IOException;
 
+    /**
+     * 
+     * @return pretty printed Version of the Locator
+     */
     public String toString();
     
+    /**
+     * 
+     * @return raw Locator data
+     */
     public byte[] getRloc();
 }
