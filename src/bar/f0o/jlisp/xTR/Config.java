@@ -23,17 +23,21 @@ package bar.f0o.jlisp.xTR;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Config {
     private org.w3c.dom.Document config;
@@ -56,17 +60,25 @@ public class Config {
     }
 
     public String[] getEIDs(){
-        String[] eids = {"127.0.0.1/8"};
+    	List<String> eids = new ArrayList<>();
+    	
         try{
-            Node n = config.getElementsByTagName("jlisp/eids").item(0);
-            int c = n.getChildNodes().getLength();
-            eids = new String[c];
-            for(int i = 0; i < c; i++){
-                Element eid = ((Element)n.getChildNodes().item(i));
-                eids[i] = eid.getAttribute("address")+"/"+eid.getAttribute("prefix");
-            }
-        } catch (Exception e){System.out.println(e);}
-        return eids;
+            Node n = config.getDocumentElement().getElementsByTagName("eids").item(0);
+            Node nc = n.getFirstChild();
+            
+            
+            do {
+            	if(nc.getNodeType() == Node.ELEMENT_NODE) {
+            		Element eid = (Element) nc;
+            		eids.add(eid.getAttribute("address")+"/"+eid.getAttribute("prefix"));
+            	}
+            	nc = nc.getNextSibling();
+            } while(nc != null);
+        } catch (Exception e){e.printStackTrace();}
+        if(eids.size() == 0) {
+        	eids.add("127.0.0.1/8");
+        }
+        return eids.toArray(new String[eids.size()]);
     }
 
     public void list(OutputStream out){
@@ -100,18 +112,25 @@ public class Config {
 	}
 
 	public Rloc[] getRlocs() {
-        Rloc[] rlocs = {new Rloc("127.0.0.1", "1", "225")};
+    	List<Rloc> rlocs = new ArrayList<>();
+    	
         try{
-            Node n = config.getElementsByTagName("rlocs").item(0);
-            System.out.println(config.getElementsByTagName("rlocs").getLength());
-            int c = n.getChildNodes().getLength();
-            rlocs = new Rloc[c];
-            for(int i = 0; i < c; i++){
-                Element rloc = ((Element)n.getChildNodes().item(i));
-                rlocs[i] = new Rloc(rloc.getAttribute("address"), rloc.getAttribute("prio"), rloc.getAttribute("weight"));
-            }
-        } catch (Exception e){System.out.println(e);}
-        return rlocs;
+            Node n = config.getDocumentElement().getElementsByTagName("rlocs").item(0);
+            Node nc = n.getFirstChild();
+            
+            
+            do {
+            	if(nc.getNodeType() == Node.ELEMENT_NODE) {
+            		Element rloc = (Element) nc;
+            		rlocs.add(new Rloc(rloc.getAttribute("address"), rloc.getAttribute("prio"), rloc.getAttribute("weight")));
+            	}
+            	nc = nc.getNextSibling();
+            } while(nc != null);
+        } catch (Exception e){e.printStackTrace();}
+        if(rlocs.size() == 0) {
+        	rlocs.add(new Rloc("127.0.0.1", "1", "225"));
+        }
+        return rlocs.toArray(new Rloc[rlocs.size()]);
 	}
 
 	public static boolean useV4() {
@@ -120,6 +139,33 @@ public class Config {
 	
 	public static boolean isRTR(){
 		return false;
+	}
+	
+	public static void main(String...strings) {
+		Config config = new Config();
+		try {
+			config.load(new FileInputStream("/home/schmidtm/workspace/jlisp/cfg/jlisp.cfg"));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("getComponent: " + config.getComponent());
+		System.out.println("getEIDs: " + config.getEIDs());
+		System.out.println("getMS: " + config.getMS());
+		System.out.println("getMSPasswd: " + config.getMSPasswd());
+		System.out.println("getMTU: " + config.getMTU());
+		System.out.println("getRlocs: " + config.getRlocs());
+		System.out.println("useV4: " + config.useV4());
+		System.out.println("isRTR: " + config.isRTR());
 	}
 
     public class Rloc {
