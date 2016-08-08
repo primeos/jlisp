@@ -47,7 +47,7 @@ public class jLig {
 		//String ms = args[0];
 		//String eid = args[1];
 		String ms = "192.168.122.97";
-		String eid = "127.0.0.1";
+		String eid = "10.0.0.1";
 		//Parse requestet EID
 		byte[] eidBytes;
 		AfiType eidType = AfiType.IPv4;
@@ -90,7 +90,6 @@ public class jLig {
 		DataInputStream answerStream = new DataInputStream(new ByteArrayInputStream(answer));
 
 		MapReply rep = new MapReply(answerStream);
-		
 		//Print result
 		if(rep.getRecordCount() == 0)
 		{
@@ -100,7 +99,9 @@ public class jLig {
 		Record result = rep.getRecords().get(0);
 		System.out.println("RLocs for EID: " + InetAddress.getByAddress(result.getEidPrefix()).getHostAddress());
 		for(Loc loc : result.getLocs()){
-			System.out.println(loc.getLocator());
+			try{
+			System.out.println(InetAddress.getByAddress(loc.getLocator().getRloc()).getHostAddress());
+			}catch(Exception e){}
 		}
 	
 	

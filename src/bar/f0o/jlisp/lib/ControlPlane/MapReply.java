@@ -141,14 +141,14 @@ public class MapReply extends ControlMessage {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream stream = new DataOutputStream(byteStream);
         try {
-            short flagsTypeTmp = 16; //Type = 2
+            byte flagsTypeTmp = 32; //Type = 2
             if (this.sBit)
-                flagsTypeTmp |= 1;
-            if (this.eBit)
                 flagsTypeTmp |= 2;
-            if (this.pBit)
+            if (this.eBit)
                 flagsTypeTmp |= 4;
-            stream.writeShort(flagsTypeTmp);
+            if (this.pBit)
+                flagsTypeTmp |= 8;
+            stream.writeByte(flagsTypeTmp);
             stream.writeShort(this.reserved);
             stream.writeByte(this.recordCount);
             stream.writeLong(this.nonce);

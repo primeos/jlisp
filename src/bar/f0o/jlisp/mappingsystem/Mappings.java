@@ -36,8 +36,14 @@ public class Mappings {
 	}
 	
 	public MapReply getReply(ArrayList<byte[]> eids,long nonce){
+		try{
+			System.out.println("Searching: "+InetAddress.getByAddress(eids.get(0)).getHostAddress());
+		}catch(Exception e){}
 		ArrayList<Record> records = new ArrayList<>();
 		for(byte[] eid : eids){
+			try{
+				System.out.println("Checking: "+InetAddress.getByAddress(eid).getHostAddress());
+			}catch(Exception e){}
 			EidPrefix pre = getMatch(eid);
 			if(pre == null){
 				records.add(new Record(0, (byte)0, (byte)0, false, (short) 1, ((eid.length==4)?AfiType.IPv4:AfiType.IPv6), eid,new ArrayList<Loc>()));
@@ -45,7 +51,7 @@ public class Mappings {
 			else
 				records.addAll(mappings.get(pre).getRecordsForEID());
 		}
-
+		System.out.println(records.size());
 		MapReply reply = new MapReply(true,false,false,nonce,records);
 		return reply;
 	}
