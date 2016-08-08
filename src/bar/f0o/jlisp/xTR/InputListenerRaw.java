@@ -61,7 +61,10 @@ public class InputListenerRaw implements Runnable{
 		while(true){
 			byte[] incomming = new byte[XTR.getMTU()];
 			int length = CLibrary.INSTANCE.read(fd, incomming, incomming.length);
-			XTR.getXTR().addSendWorker(new ITRWorker(sender,incomming,length));
+			if(length < 0)
+				System.err.println("Error reading");
+			else
+				XTR.getXTR().addSendWorker(new ITRWorker(sender,incomming,length));
 		}
 	}
 
