@@ -115,7 +115,7 @@ public abstract class ControlMessage {
      */
     public static ControlMessage fromStream(DataInputStream stream) throws IOException{
     	byte version = stream.readByte();
-    	int type = (version & 0xF);
+    	int type = ((version >> 4) & 0xF);
     	switch(type){
     	case 1:
     		return new MapRequest(stream,version);

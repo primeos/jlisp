@@ -41,7 +41,6 @@ import java.util.Map;
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * |                         . . . Nonce                           |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |         Source-EID-AFI        |   Source EID Address  ...     |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * |         ITR-RLOC-AFI 1        |    ITR-RLOC Address 1  ...    |
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -113,24 +112,26 @@ public class MapRequest extends ControlMessage {
     public MapRequest(DataInputStream stream,byte version) throws IOException {
     	this.type = 1;
         byte flags = version;
-
-        this.aFlag = (flags & 1) != 0;
-        this.mFlag = (flags & 2) != 0;
-        this.pFlag = (flags & 4) != 0;
-        this.smrBit = (flags & 8) != 0;
-        this.pitrBit = (flags & 16) != 0;
-        this.smrInvoked = (flags & 32) != 0;
+        this.aFlag = (flags & 8) != 0;
+        this.mFlag = (flags & 4) != 0;
+        this.pFlag = (flags & 2) != 0;
+        this.smrBit = (flags & 1) != 0;
+        byte reserved = stream.readByte();
+        this.pitrBit = (reserved & 128) != 0;
+        this.smrInvoked = (reserved & 64) != 0;
         this.irc = stream.readByte();
         this.recordCount = stream.readByte();
         this.nonce = stream.readLong();
         this.sourceEidAfi = AfiType.fromInt(stream.readShort());
-        byte[] buffer = new byte[AfiType.length(this.sourceEidAfi)];
+        byte buffer[];
+        buffer = new byte[AfiType.length(this.sourceEidAfi)];
         stream.read(buffer);
         this.sourceEIDAddress = buffer;
         this.itrRlocPairs = new HashMap<>();
-        for (int i = 0; i < this.irc; i++) {
+        for (int i = 0; i <= this.irc; i++) {
             short t = stream.readShort();
             buffer = new byte[AfiType.length(AfiType.fromInt(t))];
+            stream.read(buffer);
             this.itrRlocPairs.put(t, buffer);
         }
         this.recs = new ArrayList<>();
@@ -166,7 +167,7 @@ public class MapRequest extends ControlMessage {
         this.smrBit = smrBit;
         this.pitrBit = pitrBit;
         this.smrInvoked = smrInvoked;
-        this.irc = (byte) (itrRlocPairs.size() - 1);
+        this.irc = (byte) (itrRlocPairs.size()-1);
         this.recordCount = (byte) recs.size();
         this.nonce = nonce;
         this.sourceEidAfi = sourceEidAfi;

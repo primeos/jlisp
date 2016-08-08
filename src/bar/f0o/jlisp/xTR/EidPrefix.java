@@ -56,5 +56,8 @@ public class EidPrefix {
 		return this.prefixLength;
 	}
 	
+	public byte[] getPrefix(){
+		return this.prefix;
+	}
 	
 }

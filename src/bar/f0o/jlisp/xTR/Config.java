@@ -65,7 +65,7 @@ public class Config {
                 Element eid = ((Element)n.getChildNodes().item(i));
                 eids[i] = eid.getAttribute("address")+"/"+eid.getAttribute("prefix");
             }
-        } catch (Exception e){}
+        } catch (Exception e){System.out.println(e);}
         return eids;
     }
 
@@ -102,14 +102,15 @@ public class Config {
 	public Rloc[] getRlocs() {
         Rloc[] rlocs = {new Rloc("127.0.0.1", "1", "225")};
         try{
-            Node n = config.getElementsByTagName("jlisp/rlocs").item(0);
+            Node n = config.getElementsByTagName("rlocs").item(0);
+            System.out.println(config.getElementsByTagName("rlocs").getLength());
             int c = n.getChildNodes().getLength();
             rlocs = new Rloc[c];
             for(int i = 0; i < c; i++){
                 Element rloc = ((Element)n.getChildNodes().item(i));
                 rlocs[i] = new Rloc(rloc.getAttribute("address"), rloc.getAttribute("prio"), rloc.getAttribute("weight"));
             }
-        } catch (Exception e){}
+        } catch (Exception e){System.out.println(e);}
         return rlocs;
 	}
 

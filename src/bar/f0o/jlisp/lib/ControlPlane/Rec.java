@@ -57,6 +57,7 @@ public class Rec {
     public Rec(DataInputStream stream) throws IOException {
         this.resevered = stream.readByte();
         this.eidMaskLen = stream.readByte();
+
         this.eidPrefixAfi = ControlMessage.AfiType.fromInt(stream.readShort());
         byte[] buffer = new byte[ControlMessage.AfiType.length(this.eidPrefixAfi)];
         stream.read(buffer);

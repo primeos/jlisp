@@ -68,9 +68,11 @@ public class IPv4Packet extends IPPacket {
         this.checksum = stream.readShort();
         stream.read(sourceAddress);
         stream.read(destinationAddress);
-        optionHeaders = new byte[this.headerLength*4-20];
-        for (int i = 20; i < this.headerLength*4; i++) {
-            optionHeaders[i-20] = stream.readByte();
+        if(this.headerLength > 5)
+        { optionHeaders = new byte[this.headerLength*4-20];
+        	for (int i = 20; i < this.headerLength*4; i++) {
+        		optionHeaders[i-20] = stream.readByte();
+        	}
         }
         this.payload = new GenericPayload(stream,(this.totalLength-(this.headerLength*4)));
     }

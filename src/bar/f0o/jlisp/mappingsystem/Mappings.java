@@ -1,5 +1,6 @@
 package bar.f0o.jlisp.mappingsystem;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -27,6 +28,10 @@ public class Mappings {
 				mappings.put(pre, new Mapping());
 			}
 			mappings.get(pre).addMapping(rec, reg.ispFlag());
+			try{
+			System.out.println("Prefix: "+InetAddress.getByAddress(pre.getPrefix()).getHostAddress());
+			System.out.println("TTL: "+mappings.get(pre).getRecordTTL());
+			}catch(Exception e){}
 		}
 	}
 	

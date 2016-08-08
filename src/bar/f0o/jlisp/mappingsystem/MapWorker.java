@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage;
 import bar.f0o.jlisp.lib.ControlPlane.EncapsulatedControlMessage;
@@ -16,10 +17,11 @@ import bar.f0o.jlisp.lib.ControlPlane.Rec;
 public class MapWorker implements Runnable {
 
 	private DatagramPacket p;
-	
+	private int senderPort = 60573;
 	
 	public MapWorker(DatagramPacket p) {
 		this.p = p;
+		p.getSocketAddress();
 	}
 
 
@@ -67,8 +69,8 @@ public class MapWorker implements Runnable {
 		byte[] reply = MappingSystem.getMappings().getReply(eids, mapRequest.getNonce()).toByteArray();
 		p = new DatagramPacket(reply, reply.length);
 		try{
-			p.setAddress(InetAddress.getByAddress(mapRequest.getItrRlocPairs().get(1)));
-			p.setPort(4341);
+			p.setAddress(InetAddress.getByAddress(mapRequest.getItrRlocPairs().get((short)1)));
+			p.setPort(senderPort);
 			MappingSystem.sendPacket(p);
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -85,7 +87,7 @@ public class MapWorker implements Runnable {
 			DatagramPacket pack = new DatagramPacket(request, request.length);
 			try {
 				pack.setAddress(InetAddress.getByAddress(proxy));
-				p.setPort(4341);
+				pack.setPort(senderPort);
 				MappingSystem.sendPacket(pack);
 			} catch (IOException e) {
 				e.printStackTrace();

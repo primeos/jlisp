@@ -46,8 +46,8 @@ public class jLig {
 		//Read parameters
 		//String ms = args[0];
 		//String eid = args[1];
-		String ms = "134.2.11.173";
-		String eid = "10.0.0.1";
+		String ms = "192.168.122.97";
+		String eid = "127.0.0.1";
 		//Parse requestet EID
 		byte[] eidBytes;
 		AfiType eidType = AfiType.IPv4;
@@ -64,7 +64,8 @@ public class jLig {
 		recs.add(r);
 		HashMap<Short,byte[]> itrs = new HashMap<Short, byte[]>();
 		
-		itrs.put((short) 1, Inet4Address.getLocalHost().getAddress());
+		//itrs.put((short) 1, Inet4Address.getLocalHost().getAddress());
+		itrs.put((short) 1, Inet4Address.getByName("192.168.122.1").getAddress());
 		
 		byte src[] = {};
 		MapRequest req = new MapRequest( false,false, false, false, false,false 
