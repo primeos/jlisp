@@ -21,12 +21,14 @@
 
 package bar.f0o.jlisp.xTR;
 
+import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
 import bar.f0o.jlisp.lib.ControlPlane.IPv4Locator;
 import bar.f0o.jlisp.lib.ControlPlane.Loc;
 import bar.f0o.jlisp.lib.ControlPlane.MapRegister;
 import bar.f0o.jlisp.lib.ControlPlane.MapRegister.HmacType;
 import bar.f0o.jlisp.lib.ControlPlane.Record;
+import bar.f0o.jlisp.xTR.Config.Rloc;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -49,10 +51,10 @@ public class HARTR extends LISPComponent {
 	//Only v4 At the moment
 	private void register(){
 		ArrayList<Record> records = new ArrayList<>();
-		for(String prefix : Config.getEIDPrefix()){
+		for(String prefix : JLISP.getConfig().getEIDs()) {
 			ArrayList<Loc> locators = new ArrayList<>();
-			for(byte[] loc : Config.getOwnRloc()){
-				Loc l = new Loc((byte)1,(byte)1,(byte)1,(byte)1,true,false,false,AfiType.IPv4,new IPv4Locator(loc));
+			for(Rloc loc : JLISP.getConfig().getRlocs()) {
+				Loc l = new Loc((byte)1,(byte)1,(byte)1,(byte)1,true,false,false,AfiType.IPv4,new IPv4Locator(loc.getAddress()));
 				locators.add(l);
 			}
 			String[] eidPrefix = prefix.split("/");
@@ -69,7 +71,7 @@ public class HARTR extends LISPComponent {
 		//Send Message
 		DatagramSocket sock;
 		try{
-			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(Config.getMS()), 4342);
+			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(JLISP.getConfig().getMS()), 4342);
 			sock = new DatagramSocket(60574);
 			sock.send(ligPacket);
 		}catch(Exception e){e.printStackTrace();};
