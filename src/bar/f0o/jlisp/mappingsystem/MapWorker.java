@@ -94,8 +94,7 @@ public class MapWorker implements Runnable {
 
 
 	private void processRegister(MapRegister message) {
-		// TODO Auto-generated method stub
-		
+		MappingSystem.getMappings().addMapping(message);
 	}
 
 }

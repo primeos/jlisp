@@ -15,7 +15,8 @@ import bar.f0o.jlisp.xTR.EidPrefix;
 
 public class Mappings {
 
-	HashMap<EidPrefix,Mapping> mappings = new HashMap<>();
+	private HashMap<EidPrefix,Mapping> mappings = new HashMap<>();
+	
 	
 	public void addMapping(MapRegister reg){
 		for(Record rec : reg.getRecords()){
