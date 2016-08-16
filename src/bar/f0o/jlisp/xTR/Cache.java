@@ -25,6 +25,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -92,11 +93,13 @@ public class Cache {
 					resultEntry.addLCAF(loc, record.getRecordTTL());
 
 			}
-			addEntry(result, null);
+			;
+			addEntry(result, resultEntry);
 		}
 	}
 
 	private void addEntry(EidPrefix prefix, CacheEntry entry) {
+		;
 		mappings.put(prefix, entry);
 	}
 
@@ -104,15 +107,15 @@ public class Cache {
 
 		int longestPrefix = 0;
 		CacheEntry mapping = null;
-
+		;
 		for (EidPrefix pre : mappings.keySet()) {
 			if (pre.match(eid) && pre.getPrefixLength() > longestPrefix) {
 				mapping = mappings.get(pre);
 				longestPrefix = pre.getPrefixLength();
 			}
 		}
-
 		if (mapping == null) {
+			;
 			if (!lockedEids.contains(eid)) {
 				startMapRequest(eid, (byte) 0);
 				lockedEids.add(eid);
@@ -121,12 +124,11 @@ public class Cache {
 		}
 		lockedEids.remove(eid);
 		if (JLISP.getConfig().isRTR()) {
-			HashMap<String, Object> metadata = new HashMap<>();
-			metadata.put("ownRloc", JLISP.getConfig().getRlocs()[0].getAddress());
-			return mapping.getLCAFRloc(metadata);
+			return mapping.getLCAFRloc();
 		}
 		// More to do for LCAF
-		return JLISP.getConfig().useV4() ? mapping.getFirstV4Rloc() : mapping.getFirstV6Rloc();
+		return mapping.getLCAFRloc();
+		//return JLISP.getConfig().useV4() ? mapping.getFirstV4Rloc() : mapping.getFirstV6Rloc();
 	}
 
 	public void startMapRequest(byte[] eid, byte smrStaus) {
@@ -155,7 +157,7 @@ public class Cache {
 
 		@Override
 		public void run() {
-
+			;
 			// Generate Message
 			Rec r = new Rec((byte) (eidRequest.length * 8),
 					eidRequest.length == 4 ? ControlMessage.AfiType.IPv4 : ControlMessage.AfiType.IPv6,
@@ -181,21 +183,27 @@ public class Cache {
 			// Send Message
 			DatagramSocket sock;
 			try {
+				;
 				DatagramPacket ligPacket = new DatagramPacket(ligBytes, ligBytes.length,
 						InetAddress.getByAddress(JLISP.getConfig().getMS()), 4342);
-				sock = new DatagramSocket(60573);
+				byte[] all = {0,0,0,0};
+				sock = new DatagramSocket(60573,Inet4Address.getByAddress(all));
+				
 				sock.send(ligPacket);
+				;
 				byte[] answer = new byte[JLISP.getConfig().getMTU()];
 				DatagramPacket ligAnswer = new DatagramPacket(answer, answer.length);
-				;
 				sock.receive(ligAnswer);
+				;
 				sock.close();
+				;
 				byte[] answerRightSize = new byte[ligAnswer.getLength()];
 				System.arraycopy(answer, 0, answerRightSize, 0, answerRightSize.length);
 				DataInputStream answerStream = new DataInputStream(new ByteArrayInputStream(answerRightSize));
 
 				MapReply rep = new MapReply(answerStream);
 				ArrayList<Record> records = rep.getRecords();
+				;
 				Cache.getCache().parseRecords(records);
 
 			} catch (Exception e) {

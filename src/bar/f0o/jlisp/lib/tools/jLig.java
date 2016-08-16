@@ -93,14 +93,14 @@ public class jLig {
 		//Print result
 		if(rep.getRecordCount() == 0)
 		{
-			System.out.println("No result");
+			;
 			return;
 		}
 		Record result = rep.getRecords().get(0);
-		System.out.println("RLocs for EID: " + InetAddress.getByAddress(result.getEidPrefix()).getHostAddress());
+		;
 		for(Loc loc : result.getLocs()){
 			try{
-			System.out.println(InetAddress.getByAddress(loc.getLocator().getRloc()).getHostAddress());
+			;
 			}catch(Exception e){}
 		}
 	

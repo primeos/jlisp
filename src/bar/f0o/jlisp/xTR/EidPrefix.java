@@ -36,13 +36,13 @@ public class EidPrefix {
 
 	public boolean match(byte[] eid){
 		int actual = 0;
-		while(prefixLength - actual >=8){
+		while(prefixLength - actual >8){
 			if(prefix[actual/8] != eid[actual/8])
 				return false;
 			actual+=8;
 		}
-		byte prefixTmp = prefix[prefixLength/8];
-		byte eidTmp = eid[prefixLength/8];
+		byte prefixTmp = prefix[prefixLength/8-1];
+		byte eidTmp = eid[prefixLength/8-1];
 		int bytes = prefixLength -actual;
 
 		for(int i=0;i<bytes;i++){

@@ -23,6 +23,8 @@ package bar.f0o.jlisp.lib.ControlPlane;
 
 import java.io.IOException;
 
+import bar.f0o.jlisp.lib.ControlPlane.LCAF.ExplicitLocatorPath;
+
 /**
  *Locators to be used in LISP Messages 
  */
@@ -50,4 +52,5 @@ public interface Locator {
      * @return raw Locator data
      */
     public byte[] getRloc();
+
 }

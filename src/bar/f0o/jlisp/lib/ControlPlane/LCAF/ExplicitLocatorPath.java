@@ -25,6 +25,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
@@ -81,11 +82,16 @@ public class ExplicitLocatorPath implements LCAFType {
 
 	/**
 	 * 
-	 * @param lBits List of L Flags 
-	 * @param pBits List of P Flags
-	 * @param sBits List of S Flags
-	 * @param afiTypes List of AFI types
-	 * @param reencapHops List of the Locators for reencapsulation
+	 * @param lBits
+	 *            List of L Flags
+	 * @param pBits
+	 *            List of P Flags
+	 * @param sBits
+	 *            List of S Flags
+	 * @param afiTypes
+	 *            List of AFI types
+	 * @param reencapHops
+	 *            List of the Locators for reencapsulation
 	 */
 	public ExplicitLocatorPath(ArrayList<Boolean> lBits, ArrayList<Boolean> pBits, ArrayList<Boolean> sBits,
 			ArrayList<AfiType> afiTypes, ArrayList<byte[]> reencapHops) {
@@ -141,21 +147,25 @@ public class ExplicitLocatorPath implements LCAFType {
 	public ArrayList<byte[]> getReencapHops() {
 		return reencapHops;
 	}
-	
 
-	public byte[] getRloc(){
+	public byte[] getRloc() {
 		Config.Rloc[] rlocs = JLISP.getConfig().getRlocs();
-		for(Rloc rloc : rlocs)
-		{
-			int index = this.reencapHops.indexOf(rloc.getAddress());
-			if(index > 0)
-			{
-				return index < this.reencapHops.size()?this.reencapHops.get(index+1):null;
+		if (JLISP.getConfig().isRTR()) {
+			for (Rloc rloc : rlocs) {
+				int index = -1;
+				for(int i=0;i<reencapHops.size();i++){
+					if(Arrays.equals(reencapHops.get(i), rloc.getAddress()))
+					{
+						index = i;
+						break;
+					}
+				}
+				if(index >=0)
+					return index < this.reencapHops.size()-1 ? this.reencapHops.get(index + 1) : null;
+				
 			}
 		}
-		return null;
+		return this.reencapHops.get(0);
 	}
-	
-	
 
 }

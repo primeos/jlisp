@@ -40,6 +40,14 @@ public class LCAFLocator implements Locator {
 	 * @param stream Byte stream containing the LCAF Message
 	 * @throws IOException
 	 */
+	
+	public LCAFLocator(LCAFType type){
+		this.type = type;
+			if(type instanceof ExplicitLocatorPath)
+					this.lcafType = 10;
+		
+	}
+	
 	public LCAFLocator(DataInputStream stream) throws IOException {
 		// RSVD1
 		stream.readByte();
@@ -118,8 +126,7 @@ public class LCAFLocator implements Locator {
 	public byte[] toByteArray() throws IOException {
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		DataOutputStream stream = new DataOutputStream(byteStream);
-		stream.writeShort(16387);
-		stream.writeInt(0);
+		stream.writeShort(0);
 		stream.writeByte(lcafType);
 		if (this.lcafType != 0)
 			stream.write(type.toByteArray());
@@ -130,4 +137,5 @@ public class LCAFLocator implements Locator {
 	public byte[] getRloc() {
 		return type.getRloc();
 	}
+
 }

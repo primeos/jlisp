@@ -38,8 +38,9 @@ import java.util.StringTokenizer;
 public class JLISP {
     private final static int MS = 0;
     private final static int XTR = 1;
-    private final static int RTR = 2;
-    private final static int PXTR = 3;
+    private final static int MN  = 2;
+    private final static int RTR = 3;
+    private final static int PXTR = 4;
     private final static int NTR = 5;
     private final static int HAXTR = 7;
     private final static int HARTR = 8;
@@ -60,7 +61,7 @@ public class JLISP {
      */
     public static void main(String[] args) {
         if (args.length == 0 || args.length > 2) {
-            System.out.println("usage: java JLISP <config_path> [-f]");
+            ;
             System.exit(-1);
         } else {
             boolean foreground = args.length == 2 ? args[1].equalsIgnoreCase("-f"): false;
@@ -74,11 +75,12 @@ public class JLISP {
                         new MappingSystem();
                         return;
                     case JLISP.XTR:
+                    case JLISP.MN:
                         lisp = new bar.f0o.jlisp.xTR.XTR();
                         break;
-                    //case JLISP.RTR:
-                    //    lisp = new RTR();
-                    //    break;
+                    case JLISP.RTR:
+                        lisp = new RTR();
+                        break;
                     //case JLISP.PXTR:
                     //    lisp = new PXTR();
                     //    break;

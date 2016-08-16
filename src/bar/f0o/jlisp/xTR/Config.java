@@ -26,6 +26,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import bar.f0o.jlisp.JLISP;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -137,8 +139,8 @@ public class Config {
 		return true;
 	}
 	
-	public static boolean isRTR(){
-		return false;
+	public boolean isRTR(){
+		return this.getComponent() == 3;
 	}
 	
 	public static void main(String...strings) {
@@ -158,14 +160,14 @@ public class Config {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("getComponent: " + config.getComponent());
-		System.out.println("getEIDs: " + config.getEIDs());
-		System.out.println("getMS: " + config.getMS());
-		System.out.println("getMSPasswd: " + config.getMSPasswd());
-		System.out.println("getMTU: " + config.getMTU());
-		System.out.println("getRlocs: " + config.getRlocs());
-		System.out.println("useV4: " + config.useV4());
-		System.out.println("isRTR: " + config.isRTR());
+		;
+		;
+		;
+		;
+		;
+		;
+		;
+		;
 	}
 
     public class Rloc {
@@ -195,4 +197,8 @@ public class Config {
             return this.weight;
         }
     }
+
+	public boolean isMN() {
+		return this.getComponent() == 2;
+	}
 }

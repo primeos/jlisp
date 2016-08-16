@@ -23,6 +23,7 @@ package bar.f0o.jlisp.xTR;
 
 import java.net.DatagramPacket;
 
+import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.DataPlane.DataMessage;
 import bar.f0o.jlisp.lib.Net.CLibrary;
 import bar.f0o.jlisp.lib.Net.IPPacket;
@@ -43,56 +44,59 @@ import bar.f0o.jlisp.lib.Net.IPPacket;
 
 public class ETRWorker implements Runnable {
 
-	//Received Message
+	// Received Message
 	DatagramPacket received;
-	
-	public ETRWorker(DatagramPacket received){
+
+	public ETRWorker(DatagramPacket received) {
 		this.received = received;
 	}
-	
-	
+
 	@Override
 	public void run() {
-		//Getting received bytes
+		;
+		// Getting received bytes
 		byte[] rec = new byte[received.getLength()];
-		System.arraycopy(received.getData(), 0, rec,0, rec.length);
-		//Parsing Received bytes
-		DataMessage message = new DataMessage(rec);		
-		//Plugins
+		System.arraycopy(received.getData(), 0, rec, 0, rec.length);
+		// Parsing Received bytes
+		DataMessage message = new DataMessage(rec);
+		// Plugins
 		PluginController.receiveLispData(message);
-		//Extracting IP Packet from LISP Message
+		// Extracting IP Packet from LISP Message
 		IPPacket innerIP = message.getPayload();
 		byte[] otherRloc = received.getAddress().getAddress();
+		if (!JLISP.getConfig().isRTR()) {
+			if (message.isnBit()) {
+				// Nonce Handling, if n bit is set;
+				// Other RLOCs AFI
+				// If e bit is set, the nonce has to be saved in order to send
+				// it back with the next packet
+				// otherwise it is a reply to an echo request and has to be
+				// compared to the stored value
+				if (message.iseBit()) {
+					XTR.saveNonceFromRloc(otherRloc, message.getNonce());
+				} else {
+					long nonceOld = XTR.getNonceEchoToRloc(otherRloc);
+					if (nonceOld != message.getNonce())
+						throw new RuntimeException("Wrong nonce echoed");
+				}
+			} else if (message.isvBit()) {
+				// Map Version checking if v bit is set
+				short srcVersionNumber = (short) (message.getNonce() >> 16);
+				short dstVersionNumber = (short) (message.getNonce() & 0xFFFF);
+				XTR.checkSourceVersionNumber(srcVersionNumber, otherRloc);
+				XTR.checkDestinationVersionNumber(dstVersionNumber, otherRloc);
+			}
 
-		if(message.isnBit()){
-			//Nonce Handling, if n bit is set;
-			//Other RLOCs AFI
-			//If e bit is set, the nonce has to be saved in order to send it back with the next packet
-			//otherwise it is a reply to an echo request and has to be compared to the stored value
-			if(message.iseBit()){
-				XTR.saveNonceFromRloc(otherRloc, message.getNonce());
-			}
-			else{
-				long nonceOld = XTR.getNonceEchoToRloc(otherRloc);
-				if(nonceOld != message.getNonce()) throw new RuntimeException("Wrong nonce echoed");
-			}
-		}else if(message.isvBit()){
-			//Map Version checking if v bit is set
-			short srcVersionNumber = (short) (message.getNonce() >> 16);
-			short dstVersionNumber = (short) (message.getNonce()&0xFFFF);
-			XTR.checkSourceVersionNumber(srcVersionNumber,otherRloc);
-			XTR.checkDestinationVersionNumber(dstVersionNumber,otherRloc);
 		}
-		
-		
-		
-		//Sending inner IP Packet to the tun device
+
+		// Sending inner IP Packet to the tun device
 		byte[] toSend = innerIP.toByteArray();
 		PluginController.receiveRawData(toSend);
-		if(Config.isRTR()){
-			XTR.getXTR().addSendWorker(new ITRWorker(XTR.getLispSender(),toSend,toSend.length));
-		}
-		else{
+		if (JLISP.getConfig().isRTR()) {
+			;
+			LISPComponent.getComponent()
+					.addSendWorker(new ITRWorker(LISPComponent.getLispSender(), toSend, toSend.length));
+		} else {
 			CLibrary.INSTANCE.write(XTR.getFd(), toSend, toSend.length);
 		}
 	}

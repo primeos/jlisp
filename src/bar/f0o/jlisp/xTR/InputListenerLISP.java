@@ -41,7 +41,7 @@ public class InputListenerLISP implements Runnable{
 			DatagramPacket p = new DatagramPacket(buf, buf.length);
 			try {
 				receiver.receive(p);
-				XTR.getXTR().addReceiveWorker(new ETRWorker(p));
+				LISPComponent.getComponent().addReceiveWorker(new ETRWorker(p));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

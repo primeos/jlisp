@@ -23,8 +23,11 @@ package bar.f0o.jlisp.xTR;
 
 import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.ControlPlane.ControlMessage.AfiType;
+import bar.f0o.jlisp.lib.ControlPlane.LCAF.ExplicitLocatorPath;
+import bar.f0o.jlisp.lib.ControlPlane.LCAF.LCAFLocator;
 import bar.f0o.jlisp.lib.ControlPlane.IPv4Locator;
 import bar.f0o.jlisp.lib.ControlPlane.Loc;
+import bar.f0o.jlisp.lib.ControlPlane.Locator;
 import bar.f0o.jlisp.lib.ControlPlane.MapRegister;
 import bar.f0o.jlisp.lib.ControlPlane.MapRegister.HmacType;
 import bar.f0o.jlisp.lib.ControlPlane.Record;
@@ -32,6 +35,7 @@ import bar.f0o.jlisp.lib.ControlPlane.Record;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -40,17 +44,14 @@ import java.util.concurrent.Executors;
 
 public class XTR extends LISPComponent {
 
-	private static XTR xtr;
-
 	public XTR(){
-
+		super();
 	}
 	
 	public void start() throws SocketException{
 		new Thread(inputRaw).start();
 		new Thread(new InputListenerLISP()).start();
-		this.register();
-		xtr = this;
+		this.registerELP();
 	}
 
 	//Only v4 At the moment
@@ -60,7 +61,7 @@ public class XTR extends LISPComponent {
 			ArrayList<Loc> locators = new ArrayList<>();
 			for(Config.Rloc rloc : JLISP.getConfig().getRlocs()){
 				try{
-					System.out.println(InetAddress.getByAddress(rloc.getAddress()).getHostAddress());
+					;
 				}catch(Exception e){}
 				Loc l = new Loc((byte)rloc.getPrio(),(byte)rloc.getWeight(),(byte)rloc.getPrio(),(byte)rloc.getWeight(),true,false,false,AfiType.IPv4,new IPv4Locator(rloc.getAddress()));
 				locators.add(l);
@@ -71,7 +72,7 @@ public class XTR extends LISPComponent {
 			for(int i=0;i<4;i++){
 				eid[i] = Byte.valueOf(eidBytes[i]);
 			}
-			System.out.println(prefix);
+			;
 			Record r = new Record((byte)1,Byte.valueOf(eidPrefix[1]),(byte)0,false,(short)1,AfiType.IPv4,eid,locators);
 			records.add(r);
 		}
@@ -86,7 +87,51 @@ public class XTR extends LISPComponent {
 		}catch(Exception e){e.printStackTrace();};
 	}
 
-
+	//Only v4 At the moment
+	private void registerELP(){
+		ArrayList<Record> records = new ArrayList<>();
+		for(String prefix : JLISP.getConfig().getEIDs()){
+			ArrayList<Loc> locators = new ArrayList<>();
+			for(Config.Rloc rloc : JLISP.getConfig().getRlocs()){
+				try{
+					;
+				}catch(Exception e){}
+				//TODO: GET ELP FROM CONFIG, JUST BAD HACK ATM
+				ArrayList<Boolean> bits = new ArrayList<>();
+				bits.add(true);
+				bits.add(true);
+				ArrayList<AfiType> afis = new ArrayList<>();
+				afis.add(AfiType.IPv4);
+				afis.add(AfiType.IPv4);
+				ArrayList<byte[]> reencapHops = new ArrayList<>();
+				try{
+					reencapHops.add(Inet4Address.getByName("192.168.122.26").getAddress());
+				}catch(Exception e){}
+				reencapHops.add(rloc.getAddress());
+				Locator elp = new LCAFLocator(new ExplicitLocatorPath(bits,bits,bits,afis,reencapHops));
+				Loc l = new Loc((byte)rloc.getPrio(),(byte)rloc.getWeight(),(byte)rloc.getPrio(),(byte)rloc.getWeight(),true,false,false,AfiType.LCAF,elp);
+				locators.add(l);
+			}
+			String[] eidPrefix = prefix.split("/");
+			String[] eidBytes = eidPrefix[0].split("\\.");
+			byte[] eid = new byte[4];
+			for(int i=0;i<4;i++){
+				eid[i] = Byte.valueOf(eidBytes[i]);
+			}
+			;
+			Record r = new Record((byte)1,Byte.valueOf(eidPrefix[1]),(byte)0,false,(short)1,AfiType.IPv4,eid,locators);
+			records.add(r);
+		}
+		MapRegister reg = new MapRegister(true, true, 1234, HmacType.HMAC_SHA_1_96, JLISP.getConfig().getMSPasswd().getBytes(), records);
+		byte[] message = reg.toByteArray();
+		//Send Message
+		DatagramSocket sock;
+		try{
+			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(JLISP.getConfig().getMS()), 4342);
+			sock = new DatagramSocket(60574);
+			sock.send(ligPacket);
+		}catch(Exception e){e.printStackTrace();};
+	}
 
 
 	//Save own nonces send with echo request to another RLOC
@@ -120,38 +165,10 @@ public class XTR extends LISPComponent {
 		//if own number > srcVersionNumber  SMR
 	}
 
-	public void addSendWorker(Runnable worker){
-		poolSend.execute(worker);
-	}
-
-	public void addReceiveWorker(Runnable worker){
-		poolReceive.execute(worker);
-	}
-
-
-	public static int getMTU() {
-		return 1500;
-	}
-
-	public static int getFd() {
-		return fd;
-	}
-	public static void setFd(int fd){
-		XTR.fd = fd;
-	}
-
-	public static String getIP() {
-		return "10.0.0.1/24";
-	}
-
 
 	public static DatagramSocket getLispSender() {
 		return inputRaw.getSender();
 	}
 	
-	
-	public static XTR getXTR(){
-		return xtr;
-	}
 	
 }

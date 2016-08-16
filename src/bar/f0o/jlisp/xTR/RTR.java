@@ -42,40 +42,13 @@ public class RTR extends LISPComponent {
 	public RTR() throws IOException{
 		new Thread(inputRaw).start();
 		new Thread(new InputListenerLISP()).start();
+		
 	}
 	
 	public void start(){
-		this.register();
 	}
 	
-	//Only v4 At the moment
-	private void register(){
-		ArrayList<Record> records = new ArrayList<>();
-		for(String prefix : JLISP.getConfig().getEIDs()) {
-			ArrayList<Loc> locators = new ArrayList<>();
-			for(Rloc loc : JLISP.getConfig().getRlocs()) {
-				Loc l = new Loc((byte)1,(byte)1,(byte)1,(byte)1,true,false,false,AfiType.IPv4,new IPv4Locator(loc.getAddress()));
-				locators.add(l);
-			}
-			String[] eidPrefix = prefix.split("/");
-			String[] eidBytes = eidPrefix[0].split("\\.");
-			byte[] eid = new byte[4];
-			for(int i=0;i<4;i++){
-				eid[i] = Byte.valueOf(eidBytes[i]);
-			}
-			Record r = new Record((byte)1,Byte.valueOf(eidPrefix[1]),(byte)0,false,(short)1,AfiType.IPv4,eid,locators);
-			records.add(r);
-		}
-		MapRegister reg = new MapRegister(true, true, 1234, HmacType.HMAC_SHA_1_96, "lisp1-pw".getBytes(), records);
-		byte[] message = reg.toByteArray();
-		//Send Message
-		DatagramSocket sock;
-		try{
-			DatagramPacket ligPacket = new DatagramPacket(message, message.length, InetAddress.getByAddress(JLISP.getConfig().getMS()), 4342);
-			sock = new DatagramSocket(60574);
-			sock.send(ligPacket);
-		}catch(Exception e){e.printStackTrace();};
-	}
+
 	
 	
 	
@@ -118,20 +91,16 @@ public class RTR extends LISPComponent {
 
 
 	public static int getMTU() {
-		return 1500;
+		return 1300;
 	}
 
 	public static int getFd() {
 		return fd;
 	}
+	
 	public static void setFd(int fd){
 		RTR.fd = fd;
 	}
-
-	public static String getIP() {
-		return "10.0.0.1/24";
-	}
-
 
 	public static DatagramSocket getLispSender() {
 		return inputRaw.getSender();

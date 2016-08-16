@@ -24,7 +24,9 @@ package bar.f0o.jlisp.xTR;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.util.Arrays;
 
 import bar.f0o.jlisp.lib.DataPlane.DataMessage;
 import bar.f0o.jlisp.lib.Net.IPPacket;
@@ -71,9 +73,10 @@ public class ITRWorker implements Runnable{
 		PluginController.sendLispData(message);
 		byte[] messageBytes = message.toByteArray();
 		try {
-
+			;
 			byte[] rloc = Cache.getCache().getRLocForEid(packet.getDstIP());
 			//No mapping yet: drop the packet
+			;
 			if(rloc == null) return;
 			DatagramPacket UDPPacket = new DatagramPacket(messageBytes, messageBytes.length,InetAddress.getByAddress(rloc),4341);
 			sender.send(UDPPacket);

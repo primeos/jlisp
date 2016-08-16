@@ -26,6 +26,7 @@ import java.net.DatagramSocket;
 
 import com.sun.jna.LastErrorException;
 
+import bar.f0o.jlisp.JLISP;
 import bar.f0o.jlisp.lib.Net.CLibrary;
 
 public class InputListenerRaw implements Runnable{
@@ -41,12 +42,13 @@ public class InputListenerRaw implements Runnable{
 		//byte[] ifr = {(byte)0x7f,(byte)0xfe,(byte)0x43,(byte)0xb3,(byte)0x7a,(byte)0xe0};
 		try{
 		this.fd = CLibrary.INSTANCE.open("/dev/net/tun", 2);
-		XTR.setFd(fd);
+		LISPComponent.setFd(fd);
 		CLibrary.INSTANCE.ioctl(fd,((long)0x400454ca), ifr);
 		}catch(LastErrorException ex){
-			System.out.println(ex);
+			;
 		}
-		Runtime.getRuntime().exec("ip a a "+XTR.getIP() +" dev lisp0");
+		if(JLISP.getConfig().isMN())
+			Runtime.getRuntime().exec("ip a a "+JLISP.getConfig().getEIDs()[0] +" dev lisp0");
 		Runtime.getRuntime().exec("ip l s dev lisp0 up");
 		Runtime.getRuntime().exec("ip l s dev lisp0 mtu 1300");
 		}catch(IOException e){
@@ -64,7 +66,8 @@ public class InputListenerRaw implements Runnable{
 			if(length < 0)
 				System.err.println("Error reading");
 			else
-				XTR.getXTR().addSendWorker(new ITRWorker(sender,incomming,length));
+				LISPComponent.getComponent().addSendWorker(new ITRWorker(sender,incomming,length));
+			;
 		}
 	}
 

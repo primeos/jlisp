@@ -29,20 +29,20 @@ public class Mappings {
 			}
 			mappings.get(pre).addMapping(rec, reg.ispFlag());
 			try{
-			System.out.println("Prefix: "+InetAddress.getByAddress(pre.getPrefix()).getHostAddress());
-			System.out.println("TTL: "+mappings.get(pre).getRecordTTL());
+			;
+			;
 			}catch(Exception e){}
 		}
 	}
 	
 	public MapReply getReply(ArrayList<byte[]> eids,long nonce){
 		try{
-			System.out.println("Searching: "+InetAddress.getByAddress(eids.get(0)).getHostAddress());
+			;
 		}catch(Exception e){}
 		ArrayList<Record> records = new ArrayList<>();
 		for(byte[] eid : eids){
 			try{
-				System.out.println("Checking: "+InetAddress.getByAddress(eid).getHostAddress());
+				;
 			}catch(Exception e){}
 			EidPrefix pre = getMatch(eid);
 			if(pre == null){
@@ -51,7 +51,7 @@ public class Mappings {
 			else
 				records.addAll(mappings.get(pre).getRecordsForEID());
 		}
-		System.out.println(records.size());
+		;
 		MapReply reply = new MapReply(true,false,false,nonce,records);
 		return reply;
 	}
