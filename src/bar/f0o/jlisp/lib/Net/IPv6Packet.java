@@ -22,6 +22,7 @@
 package bar.f0o.jlisp.lib.Net;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
@@ -30,59 +31,104 @@ import java.io.IOException;
  */
 public class IPv6Packet extends IPPacket {
 
+	private byte trafficClass = 0;
+	private int flowLabel = 0; //20 Bit
+	private short payloadLength = 0;
+	private byte nextHeader = 17;
+	private byte hopLimit = 16;
+	private byte[] sourceAddress = new byte[16];
+	private byte[] destAddess = new byte[16];
+
+
 	private IPv6Packet() {
     }
 
     public IPv6Packet(DataInputStream stream) throws IOException {
-    	
+		int firstLineTmp = stream.readInt();
+		trafficClass = (firstLineTmp >> 20) & 0x00F;
+		flowLabel = firstLineTmp & 0x000FFFFF;
+		payloadLength = stream.readShort();
+		nextHeader = stream.readByte();
+		hopLimit = stream.readByte();
+		stream.read(sourceAddress);
+		stream.read(destAddress);
+		this.payload = new GenericPayload(stream,this.payloadLength);
     }
 	
 	public IPv6Packet(byte[] sourceAddress, byte[] destinationAddress) {
-		
+		this.sourceAddress = sourceAddress;
+		this.destAddess = destinationAddress;
 	}
 	
 	public IPv6Packet(byte[] packet) {
-		
+		this.trafficClass = (packet[0] & 0x0F << 4) + (packet[1] >> 4);
+		this.flowLabel = (packet[1] & 0x0F << 16) + packet[2] << 8 + packet[3];
+		this.payloadLength = (short) (packet[4] << 8 + packet[5]);
+		this.nextHeader = (byte) (packet[6]);
+		this.hopLimit = (byte) (packet[7]);
+		for(int i =0;i<16;i++){
+			sourceAddress[i] = packet[8+i];
+			destAddess[i] = packet[24+i];
+		}
+		byte[] tmpPayload = new byte[this.payloadLength];
+        for (int i = 40; i < packet.length; i++) {
+            tmpPayload[j-40] = packet[i];
+        }
+        this.payload = new GenericPayload(tmpPayload);
+
 	}
 	
 	public byte[] toByteArray() {
-		// TODO Auto-generated method stub
-		return null;
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(byteStream);
+        try {
+			int firstLine = this.trafficClass << 28 + this.flowLabel;        	
+			stream.writeInt((firstLine | 0b01100000000000000000000000000000));
+			stream.writeShort(this.payloadLength);
+			stream.writeByte(this.nextHeader);
+			stream.writeByte(this.hopLimit);
+            stream.write(sourceAddress);
+            stream.write(destAddess);
+            for (int i = 20; i < this.headerLength*4; i++) {
+                stream.writeByte(optionHeaders[i-20]);
+            }
+            stream.write(payload.toByteArray());
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return byteStream.toByteArray();
 	}
 
 	public void addPayload(IPPayload payload) {
-		// TODO Auto-generated method stub
-
+		this.nextHeader = payload.getProtocol();
+        this.payload = payload;
+        this.payloadLength = (short) (payload.getLength());
 	}
 
 	public byte[] getSrcIP() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.sourceAddress;
 	}
 
 	public byte[] getDstIP() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.destAddess;
 	}
 
 	public byte getTTL() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.hopLimit;
 	}
 
 	public void setTTL(byte ttl) {
-		// TODO Auto-generated method stub
-
+		this.hopLimit = ttl;
 	}
 
 	public byte getToS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.trafficClass;
 	}
 
 	public void setToS(byte tos) {
-		// TODO Auto-generated method stub
-
+		this.trafficClass = tos;
 	}
 
 }
