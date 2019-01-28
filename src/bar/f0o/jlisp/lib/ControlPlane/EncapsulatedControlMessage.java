@@ -23,6 +23,7 @@ package bar.f0o.jlisp.lib.ControlPlane;
 
 import bar.f0o.jlisp.lib.Net.IPPacket;
 import bar.f0o.jlisp.lib.Net.IPv4Packet;
+import bar.f0o.jlisp.lib.Net.IPv6Packet;
 import bar.f0o.jlisp.lib.Net.UDPPacket;
 
 import java.io.ByteArrayInputStream;
@@ -113,7 +114,12 @@ public class EncapsulatedControlMessage extends ControlMessage {
             int type = 0b10000000000000000000000000000000;
             stream.writeInt(type);
             UDPPacket packet = new UDPPacket(srcAddr, srcPort, dstAddr, dstPort, message.toByteArray());
-            IPPacket ippacket = new IPv4Packet(srcAddr, dstAddr);
+            IPPacket ippacket;
+            if(srcAddr.length > 4){
+                ippacket = new IPv6Packet(srcAddr, dstAddr);
+            }else{
+                ippacket = new IPv4Packet(srcAddr, dstAddr);
+            } 
             ippacket.addPayload(packet);
             stream.write(ippacket.toByteArray());
 
