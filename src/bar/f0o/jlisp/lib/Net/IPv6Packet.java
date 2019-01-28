@@ -24,6 +24,7 @@ package bar.f0o.jlisp.lib.Net;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 
 /**
  * Not implemented yet
@@ -37,7 +38,8 @@ public class IPv6Packet extends IPPacket {
 	private byte nextHeader = 17;
 	private byte hopLimit = 16;
 	private byte[] sourceAddress = new byte[16];
-	private byte[] destAddess = new byte[16];
+	private byte[] destAddress = new byte[16];
+    private IPPayload payload;
 
 
 	private IPv6Packet() {
@@ -45,7 +47,7 @@ public class IPv6Packet extends IPPacket {
 
     public IPv6Packet(DataInputStream stream) throws IOException {
 		int firstLineTmp = stream.readInt();
-		trafficClass = (firstLineTmp >> 20) & 0x00F;
+		trafficClass = (byte) ((firstLineTmp >> 20) & 0x00F);
 		flowLabel = firstLineTmp & 0x000FFFFF;
 		payloadLength = stream.readShort();
 		nextHeader = stream.readByte();
@@ -57,7 +59,7 @@ public class IPv6Packet extends IPPacket {
 	
 	public IPv6Packet(byte[] sourceAddress, byte[] destinationAddress) {
 		this.sourceAddress = sourceAddress;
-		this.destAddess = destinationAddress;
+		this.destAddress = destinationAddress;
 	}
 	
 	public IPv6Packet(byte[] packet) {
@@ -68,11 +70,11 @@ public class IPv6Packet extends IPPacket {
 		this.hopLimit = (byte) (packet[7]);
 		for(int i =0;i<16;i++){
 			sourceAddress[i] = packet[8+i];
-			destAddess[i] = packet[24+i];
+			destAddress[i] = packet[24+i];
 		}
 		byte[] tmpPayload = new byte[this.payloadLength];
         for (int i = 40; i < packet.length; i++) {
-            tmpPayload[j-40] = packet[i];
+            tmpPayload[i-40] = packet[i];
         }
         this.payload = new GenericPayload(tmpPayload);
 
@@ -88,10 +90,7 @@ public class IPv6Packet extends IPPacket {
 			stream.writeByte(this.nextHeader);
 			stream.writeByte(this.hopLimit);
             stream.write(sourceAddress);
-            stream.write(destAddess);
-            for (int i = 20; i < this.headerLength*4; i++) {
-                stream.writeByte(optionHeaders[i-20]);
-            }
+            stream.write(destAddress);
             stream.write(payload.toByteArray());
             
         } catch (IOException e) {
@@ -112,7 +111,7 @@ public class IPv6Packet extends IPPacket {
 	}
 
 	public byte[] getDstIP() {
-		return this.destAddess;
+		return this.destAddress;
 	}
 
 	public byte getTTL() {
