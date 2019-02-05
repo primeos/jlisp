@@ -107,7 +107,7 @@ public class UDPPacket extends IPPayload {
 	 */
 	@Override
 	public int getLength() {
-		return (payload.length/4)+2;
+		return length;
 	}
 
 
@@ -138,6 +138,7 @@ public class UDPPacket extends IPPayload {
 		    sum &= 0x0000FFFF;
 		    sum += carry;
 		}
+		// TODO: Store the result (this.checksum)
 		
 	}
 	
@@ -147,7 +148,7 @@ public class UDPPacket extends IPPayload {
 	 * @param dst
 	 */
 	private void generateChecksumV6(byte[] src,byte[] dst){
-		
+		// TODO: Checksum for IPv6 is still missing
 	}
 
 	/**

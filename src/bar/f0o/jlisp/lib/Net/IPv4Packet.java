@@ -152,7 +152,7 @@ public class IPv4Packet extends IPPacket {
     public void addPayload(IPPayload payload) {
     	this.protocol = payload.getProtocol();
         this.payload = payload;
-        this.totalLength = (short) ((this.headerLength + payload.getLength()) * 4);
+        this.totalLength = (short) (headerLength*4 + payload.getLength());
         this.checksum();
     }
     
