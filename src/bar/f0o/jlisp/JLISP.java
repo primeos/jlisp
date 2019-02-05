@@ -21,7 +21,6 @@
 
 package bar.f0o.jlisp;
 
-import bar.f0o.jlisp.mappingsystem.MappingSystem;
 import bar.f0o.jlisp.xTR.*;
 import org.xml.sax.SAXException;
 
@@ -72,7 +71,6 @@ public class JLISP {
                 LISPComponent lisp = null;
                 switch (component) {
                     case JLISP.MS:
-                        new MappingSystem();
                         return;
                     case JLISP.XTR:
                     case JLISP.MN:
