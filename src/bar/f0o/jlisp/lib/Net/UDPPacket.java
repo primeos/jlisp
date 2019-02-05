@@ -52,7 +52,7 @@ public class UDPPacket extends IPPayload {
 		this.length = (short) (8 + payload.length);
 		if(srcAddresss.length == 4)
 			generateChecksumV4(srcAddresss, dstAddress);
-		else if(srcAddresss.length == 32)
+		else if(srcAddresss.length == 16)
 			generateChecksumV6(srcAddresss, dstAddress);
 		else{
 			System.err.println("Wrong number of octets in src address");
