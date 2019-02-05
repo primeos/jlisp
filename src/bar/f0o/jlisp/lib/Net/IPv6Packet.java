@@ -63,7 +63,7 @@ public class IPv6Packet extends IPPacket {
 	}
 	
 	public IPv6Packet(byte[] packet) {
-		this.trafficClass = (packet[0] & 0x0F << 4) + (packet[1] >> 4);
+		this.trafficClass = (byte) ((packet[0] & 0x0F << 4) + (packet[1] >> 4));
 		this.flowLabel = (packet[1] & 0x0F << 16) + packet[2] << 8 + packet[3];
 		this.payloadLength = (short) (packet[4] << 8 + packet[5]);
 		this.nextHeader = (byte) (packet[6]);
